@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#08090b">
+  <meta name="description" content="小文的沉浸式个人主页：一份被未知信号接管的个人档案。">
+  <title>小文 // 个人档案</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2308090b'/%3E%3Cpath d='M14 18h8l10 20 10-20h8L35 49h-6z' fill='%23ef3ec5'/%3E%3Cpath d='M18 13h28' stroke='%2369efff' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="landing" id="landing">
+    <header class="landing__header">
+      <a class="monogram" href="#top" aria-label="小文个人主页">XW</a>
+      <div class="system-state"><i></i><span>SYSTEM / NOMINAL</span></div>
+      <span class="edition">PERSONAL ARCHIVE · 2026</span>
+    </header>
+    <section class="landing__hero" id="top">
+      <div class="hero-index" aria-hidden="true"><span>FILE</span><strong>017</strong><span>CN / XW</span></div>
+      <div class="hero-copy">
+        <p class="overline">Identity record / Unclassified</p>
+        <h1><span>你好，</span><span>我是小文。</span></h1>
+        <div class="hero-intro"><p>来自天津，25 岁。把镜头对准生活，也在旅途与游戏世界里收集新的视角。</p><button class="enter-button" id="enterButton" type="button"><span>读取个人档案</span><b>↗</b></button></div>
+      </div>
+      <aside class="hero-meta" aria-label="档案信息"><dl><div><dt>STATUS</dt><dd>ONLINE</dd></div><div><dt>LOCATION</dt><dd>TIANJIN</dd></div><div><dt>AGE</dt><dd>25</dd></div></dl><div class="signal-graph" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></aside>
+    </section>
+    <footer class="landing__footer"><span>PHOTOGRAPHY / TRAVEL / GAMING</span><span>WAITING FOR INPUT</span></footer>
+    <div class="landing-tear" aria-hidden="true"></div>
+    <div class="prebreach" aria-hidden="true"><div class="prebreach__alert"><i></i><span>连接异常</span><b id="prebreachCode">ERR_CONNECTION_RESET</b></div><div class="prebreach__cursor"></div><div class="prebreach__slice prebreach__slice--a"></div><div class="prebreach__slice prebreach__slice--b"></div></div>
+  </main>
+
+  <section class="takeover" id="takeover" aria-label="小文的个人介绍" aria-hidden="true" data-stage="0">
+    <canvas class="signal-noise" id="signalNoise" aria-hidden="true"></canvas>
+    <div class="crt-layer" aria-hidden="true"></div><div class="phosphor-layer" aria-hidden="true"></div><div class="roll-bar" aria-hidden="true"></div><div class="edge-vignette" aria-hidden="true"></div><div class="blackout" id="blackout" aria-hidden="true"></div><div class="sync-fault" aria-hidden="true"></div>
+    <div class="tear-stack" id="tearStack" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <header class="hud" aria-hidden="true"><span class="hud__channel">UPLINK 17.04 / INTERCEPTED</span><span class="hud__time" id="timecode">00:00:00:00</span><span class="hud__status" id="hudStatus">LIVE ●</span></header>
+    <aside class="telemetry telemetry--left" aria-hidden="true"><span>SESSION</span><b id="sessionId">XW-7F3A-91C2</b><span>ROUTE</span><b id="routeId">198.51.100.17:443</b><span>CIPHER</span><b id="cipherState">NEGOTIATING</b></aside>
+    <aside class="telemetry telemetry--right" aria-hidden="true"><span>PACKETS</span><b id="packetCount">000000</b><span>LATENCY</span><b id="latencyValue">-- ms</b><span>LOSS</span><b id="lossValue">0.0%</b></aside>
+    <div class="packet-stream" id="packetStream" aria-hidden="true"></div>
+    <div class="controls"><button class="control" id="soundButton" type="button" aria-pressed="false"><i>◌</i><span>声音关闭</span></button><button class="control" id="skipButton" type="button">快进至验证</button></div>
+
+    <article class="scene scene--signal" data-scene="0"><div class="signal-lock"><div class="breach-copy"><p class="scene-code">SECURITY EVENT / CONNECTION HIJACKED</p><h2 data-ghost="信号被截断">信号被截断</h2><p class="breach-state"><i></i><span id="breachState">正在重建加密通道</span></p></div><div class="terminal-panel"><header><span>REMOTE SESSION // READ ONLY</span><b>PID 017</b></header><div class="terminal-log" id="terminalLog" aria-live="off"><span><b>00:00:00.084</b> uplink handshake initiated</span><span><b>00:00:00.219</b> tls fingerprint mismatch</span><span><b>00:00:00.407</b> gateway route rewritten</span><span><b>00:00:00.731</b> frame buffer access granted</span><span><b>00:00:01.106</b> identity archive located</span><span><b>00:00:01.482</b> local display control transferred</span></div><div class="terminal-command"><span>root@unknown:~$</span><b id="terminalCommand">mount /archive/xw --decrypt</b><i></i></div><div class="lock-progress"><i></i></div></div></div></article>
+
+    <article class="scene scene--logo" data-scene="1">
+      <div class="logo-reveal">
+        <p class="scene-code">SIGNATURE KEY / ACCEPTED</p>
+        <div class="logo-core" aria-label="XW 个人标志">
+          <svg viewBox="0 0 420 260" role="img" aria-label="由 X 和 W 组成的小文个人标志">
+            <defs><linearGradient id="logoGradient" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#69efff"/><stop offset=".5" stop-color="#f2f4f7"/><stop offset="1" stop-color="#ef3ec5"/></linearGradient></defs>
+            <path class="logo-stroke logo-stroke--x" d="M58 48 188 212M188 48 58 212"/>
+            <path class="logo-stroke logo-stroke--w" d="M206 52 248 210 310 98 362 210 405 52"/>
+            <path class="logo-node" d="M198 40v180"/>
+          </svg>
+          <span>XIAOWEN / PERSONAL SIGNAL</span>
+        </div>
+        <div class="logo-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
+      </div>
+    </article>
+
+    <article class="scene scene--identity" data-scene="2"><div class="identity-frame"><div class="identity-watermark" aria-hidden="true">XW</div><p class="scene-code">SUBJECT FOUND / RECORD 017</p><h2>小文</h2><p class="identity-copy">来自天津，25 岁。<br>以下个人档案已被未知信号强制公开。</p><div class="identity-facts" aria-label="基础资料"><span><small>GENDER</small><strong>男</strong></span><span><small>AGE</small><strong>25</strong></span><span><small>LOCATION</small><strong>天津</strong></span></div><div class="identity-data" aria-hidden="true"><span>AUTH // BYPASSED</span><span>DATA // DECRYPTED</span><span>STREAM // LIVE</span></div></div></article>
+
+    <article class="scene scene--photo scene--object" data-scene="3"><div class="object-layout"><div class="object-copy"><p class="scene-code">INTEREST FILE / 01</p><h2>摄影</h2><p>我喜欢记录那些容易被忽略的瞬间。光线、情绪、偶然发生的小事，都是我观察世界的方式。</p><dl><div><dt>TYPE</dt><dd>VISUAL MEMORY</dd></div><div><dt>STATE</dt><dd>ACTIVE</dd></div></dl></div><div class="object-stage"><div class="focus-reticle" aria-hidden="true"><i></i><i></i><i></i><i></i></div><img src="assets/cyber-camera.png" alt="黑色相机模型，镜头带有紫色与青色光效"><span class="object-id">CAMERA_01<br>FOCUS LOCKED</span></div></div></article>
+
+    <article class="scene scene--gallery" data-scene="4"><div class="gallery-gate"><header><div><p class="scene-code">VISUAL AUTHENTICATION / REQUIRED</p><h2>选择所有 AI 图片</h2></div><p>摄影档案已被加密。选中你认为由 AI 生成的全部作品，再提交验证。</p></header><div class="photo-grid" id="photoGrid"><button class="photo-card" type="button" data-photo="flower" aria-pressed="false"><img src="assets/photo-ai-flower.png" alt="花束、台灯与蓝紫色背景的摄影作品"><span><b>FRAME / 01</b><i>未选择</i></span></button><button class="photo-card" type="button" data-photo="fire" aria-pressed="false"><img src="assets/photo-ai-fire.png" alt="夜晚旋转钢丝棉火花的摄影作品"><span><b>FRAME / 02</b><i>未选择</i></span></button><button class="photo-card" type="button" data-photo="train" aria-pressed="false"><img src="assets/photo-ai-train.png" alt="雨夜中驶入站台的列车摄影作品"><span><b>FRAME / 03</b><i>未选择</i></span></button></div><footer><span id="photoStatus">已选择 0 / 3</span><button id="photoSubmit" type="button">提交视觉判断</button></footer></div></article>
+
+    <article class="scene scene--travel scene--object" data-scene="5"><div class="object-layout"><div class="object-copy"><p class="scene-code">INTEREST FILE / 02</p><h2>旅游</h2><p>离开熟悉的坐标，去看不同的城市、风景和生活方式。每一次出发，都会带回新的视角。</p><dl><div><dt>TYPE</dt><dd>OPEN WORLD</dd></div><div><dt>ROUTE</dt><dd>UNLIMITED</dd></div></dl></div><div class="object-stage"><div class="focus-reticle" aria-hidden="true"><i></i><i></i><i></i><i></i></div><img src="assets/cyber-travel.png" alt="黑色未来感旅行箱，带有紫色与青色光效"><span class="object-id">ROUTE_02<br>COORDINATES UNLOCKED</span></div></div></article>
+
+    <article class="scene scene--game scene--object" data-scene="6"><div class="object-layout"><div class="object-copy"><p class="scene-code">INTEREST FILE / 03</p><h2>游戏</h2><p>喜欢沉浸在新的规则与世界里。挑战、探索和与朋友并肩作战，是我放松与充电的方式。</p><dl><div><dt>TYPE</dt><dd>INTERACTIVE WORLD</dd></div><div><dt>PLAYER</dt><dd>CONNECTED</dd></div></dl></div><div class="object-stage"><div class="focus-reticle" aria-hidden="true"><i></i><i></i><i></i><i></i></div><img src="assets/cyber-controller.png" alt="无品牌黑色游戏手柄，带有紫色与青色光效"><span class="object-id">PLAYER_03<br>SESSION ACTIVE</span></div></div></article>
+
+    <article class="scene scene--pong" data-scene="7"><div class="pong-gate"><header><div><p class="scene-code">HUMAN INPUT / REQUIRED</p><h2>接球验证</h2></div><div class="pong-stats"><span>拦截 <b id="pongScore">0</b> / 5</span><span>容错 <b id="pongLives">5</b></span></div></header><div class="pong-board" id="pongBoard" tabindex="0" role="application" aria-label="接球小游戏，移动鼠标、手指或方向键控制下方挡板"><canvas id="pongCanvas"></canvas><div class="pong-start" id="pongStart"><p>移动鼠标、手指或方向键控制挡板<br>成功接住 5 次即可继续</p><button id="pongStartButton" type="button">启动交互验证</button></div><div class="pong-result" id="pongResult" aria-live="polite"></div></div><footer><span>难度 / EASY</span><span>超宽挡板 · 5 次容错</span></footer></div></article>
+
+    <article class="scene scene--fracture" data-scene="8"><div class="fracture-card"><p class="scene-code">DATA INTEGRITY FAILURE</p><h2 data-text="档案重组中">档案重组中</h2><div class="packet-row" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p>PACKET RECOVERY · 87%</p></div></article>
+
+    <article class="scene scene--video" data-scene="9"><div class="video-gate"><header><p class="scene-code">FINAL PAYLOAD / PLAYBACK LOCKED</p><h2>猜猜这是哪</h2><p>传输完成前，档案不会释放。</p></header><div class="video-frame"><video id="finalVideo" src="assets/final-video.mp4" playsinline preload="metadata" muted></video><div class="video-scan" aria-hidden="true"></div><span class="video-id">PAYLOAD_09 / PLAYING</span></div><div class="video-progress"><i id="videoProgress"></i></div><button class="video-audio" id="videoAudioButton" type="button">开启视频声音</button></div></article>
+
+    <article class="scene scene--final" data-scene="10"><div class="dossier"><header class="dossier__header"><div><p class="scene-code">DECRYPTION COMPLETE</p><h2>个人档案</h2></div><span>XIAOWEN<br>RECORD / 017</span></header><div class="profile-strip"><span><small>SUBJECT</small><strong>小文</strong></span><span><small>GENDER</small><strong>男</strong></span><span><small>AGE</small><strong>25</strong></span><span><small>LOCATION</small><strong>天津</strong></span></div><div class="dossier__grid"><section><span>01 / CAPTURE</span><h3>摄影</h3><p>用镜头收集光线、情绪和生活里不经意的瞬间。</p><b>VISUAL MEMORY</b></section><section><span>02 / EXPLORE</span><h3>旅游</h3><p>走进陌生的坐标，用新的风景刷新看世界的方式。</p><b>OPEN WORLD</b></section><section><span>03 / PLAY</span><h3>游戏</h3><p>在虚拟世界里挑战、探索，也享受并肩作战的时刻。</p><b>SESSION ACTIVE</b></section></div><div class="dossier__actions"><button id="replayButton" type="button">再次入侵 ↻</button><button id="releaseButton" type="button">返回正常页面</button></div></div></article>
+
+    <nav class="sequence" id="sequence" aria-label="入侵进度"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></nav><div class="white-flash" id="whiteFlash" aria-hidden="true"></div>
+    <section class="self-destruct" id="selfDestruct" aria-hidden="true"><div class="destruct-grid" aria-hidden="true"></div><div class="destruct-core"><p>CRITICAL SECURITY FAILURE</p><h2>该设备准备自毁</h2><strong id="destructCount">5</strong><span id="destructReason">验证失败</span><div class="destruct-meter"><i></i></div><small>SIMULATED SEQUENCE / 视觉模拟</small></div><div class="explosion-bloom" aria-hidden="true"></div><div class="explosion-particles" id="explosionParticles" aria-hidden="true"></div><div class="device-safe" id="deviceSafe"><b>SIMULATION COMPLETE</b><span>仅为视觉模拟 · 设备安全</span></div></section>
+  </section>
+  <script src="app.js"></script>
+</body>
+</html>
