@@ -139,6 +139,9 @@
     if(window.ResizeObserver)new ResizeObserver(()=>map.invalidateSize()).observe($('travelMap'));
   }
   function heatColor(score) {return score>=75?'#bd592b':score>=60?'#899741':'#487d70';}
+  function showOverview() {
+    if(map)map.fitBounds(L.latLngBounds(D.cities.map(c=>[c.lat,c.lng])),{padding:[30,30],maxZoom:4,animate:false});
+  }
   function renderMap() {
     if(!map)return;
     cityLayer.clearLayers();
@@ -207,14 +210,14 @@
   function analyzeTravel(keepCity='') {
     ranking=D.rankCities(travelOptions());
     renderMap();
-    if(map&&!keepCity)map.setView([32.8,110.5],4,{animate:false});
+    if(map&&!keepCity)showOverview();
     const o=travelOptions();
     $('travelSummary').textContent=(o.interests.length?'按本次兴趣':favorites.length?'按 '+favorites.length+' 座收藏城市的偏好':'还未添加偏好，先看均衡推荐')+' · '+o.month+' 月 / '+o.days+' 天 · 已分析 '+D.cities.length+' 座城市。点击城市查看地图与攻略。';
     selectCity(keepCity||ranking[0].name,false);
   }
-  $('travelForm').addEventListener('submit',e=>{e.preventDefault();analyzeTravel();if(map)map.setView([32.8,110.5],4,{animate:false});});
+  $('travelForm').addEventListener('submit',e=>{e.preventDefault();analyzeTravel();});
   $('travelForm').addEventListener('change',()=>analyzeTravel());
-  $('resetMap').addEventListener('click',()=>{if(map)map.setView([32.8,110.5],4,{animate:false});});
+  $('resetMap').addEventListener('click',showOverview);
   $('exploreCity').addEventListener('change',e=>selectCity(e.target.value,true));
   initMap();renderFavorites();analyzeTravel();
   if(!storageAvailable)$('importStatus').textContent='之前的本地收藏无法读取，已使用空名单；可重新导入或添加城市。';
