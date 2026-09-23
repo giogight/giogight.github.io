@@ -71,6 +71,20 @@
     }
     return {known:[...new Set(known)],unknown:[...new Set(unknown)],duplicates:known.length-new Set(known).size};
   }
+  function estimateBudget(city, options) {
+    // Planning allowances, not observed hotel prices or a live quote.
+    const round=n=>Math.round(n/10)*10;
+    const lodging=options.lodging||'solo';
+    const stayFactor=lodging==='none'?0:lodging==='shared'?.65:1;
+    const parts={
+      stay:round(city.budget*.48*stayFactor*(options.peak?1.4:1)),
+      food:round(Math.max(40,city.budget*.26)),
+      transport:round(Math.max(20,city.budget*.12)),
+      visits:round(city.budget*.14)
+    };
+    const daily=Object.values(parts).reduce((sum,n)=>sum+n,0);
+    return {parts,daily,low:round(daily*.75),high:round(daily*1.35)};
+  }
   function rankCities(options) {
     const weights=Object.fromEntries(Object.keys(tags).map(t=>[t,0]));
     const favorites=cities.filter(c=>options.favorites.includes(c.name));
@@ -78,14 +92,15 @@
     else favorites.forEach(c=>c.tags.forEach(t=>weights[t]++));
     if(!Object.values(weights).some(Boolean)) Object.keys(weights).forEach(t=>weights[t]=1);
     const total=Object.values(weights).reduce((a,b)=>a+b,0);
-    return cities.map(c=>{
+    return favorites.map(c=>{
       const affinity=c.tags.reduce((a,t)=>a+weights[t],0)/total;
-      const season=c.months.includes(options.month), affordable=options.budget>=c.budget, enough=options.days>=c.days;
-      const score=Math.round(affinity*45+(season?20:5)+20*Math.min(1,options.budget/c.budget)+(enough?10:4)+(options.favorites.includes(c.name)?5:0));
-      return {...c,score,season,affordable,enough,matched:c.tags.filter(t=>weights[t]>0)};
+      const cost=estimateBudget(c,options);
+      const season=c.months.includes(options.month), affordable=options.budget>=cost.daily, enough=options.days>=c.days;
+      const score=Math.round(affinity*45+(season?20:5)+20*Math.min(1,options.budget/cost.daily)+(enough?10:4)+5);
+      return {...c,cost,score,season,affordable,enough,matched:c.tags.filter(t=>weights[t]>0)};
     }).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'zh-CN'));
   }
-  const api={tags,moods,games,cities,matchGames,parseCities,rankCities};
+  const api={tags,moods,games,cities,matchGames,parseCities,rankCities,estimateBudget};
   if(typeof module!=='undefined'&&module.exports) module.exports=api;
   else root.XWTools=api;
 })(typeof window!=='undefined'?window:{});

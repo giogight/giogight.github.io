@@ -75,7 +75,6 @@
   };
   D.cities.forEach(c=>{
     const o=el('option');o.value=c.name;$('cityOptions').append(o);
-    const choice=el('option',c.name);choice.value=c.name;$('exploreCity').append(choice);
   });
   for(let month=1;month<=12;month++){const o=el('option',month+' 月');o.value=month;$('travelMonth').append(o);}
   $('travelMonth').value=String(new Date().getMonth()+1);
@@ -84,7 +83,7 @@
     for(const name of favorites) {
       const chip=el('span',undefined,'city-chip'), remove=el('button','×');
       remove.type='button';remove.setAttribute('aria-label','移除 '+name);
-      remove.addEventListener('click',()=>{favorites=favorites.filter(n=>n!==name);persist();renderFavorites();invalidateTravel();});
+      remove.addEventListener('click',()=>{favorites=favorites.filter(n=>n!==name);citiesChanged();});
       chip.append(el('span',name),remove);$('cityChips').append(chip);
     }
     if(!favorites.length) $('cityChips').append(el('p','还没有收藏。添加几个喜欢的城市，让推荐更懂你。','fine-print'));
@@ -92,13 +91,19 @@
     selected.forEach(c=>c.tags.forEach(t=>{counts[t]=(counts[t]||0)+1;}));
     const ranked=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
     $('cityStats').textContent='已收藏 '+favorites.length+' 座城市 · '+new Set(selected.map(c=>c.region)).size+' 个地区'+(ranked.length?'｜兴趣统计：'+ranked.map(([t,n])=>D.tags[t]+' '+n).join(' / '):'')+'。目前支持 '+D.cities.length+' 座城市。';
+    document.querySelectorAll('#mapCityChoices input').forEach(input=>{input.checked=favorites.includes(input.value);});
+  }
+  function citiesChanged() {
+    persist();renderFavorites();
+    if(mapInitialized&&!$('travelOutput').hidden)analyzeTravel();
+    else invalidateTravel();
   }
   function importCities(text,isJSON=false) {
     try {
       const parsed=D.parseCities(text,isJSON), before=favorites.length;
       const existing=parsed.known.filter(n=>favorites.includes(n)).length;
       favorites=[...new Set([...favorites,...parsed.known])];
-      persist();renderFavorites();invalidateTravel();
+      citiesChanged();
       $('importStatus').textContent='新增 '+(favorites.length-before)+' 座；跳过重复 '+(existing+parsed.duplicates)+' 项。'
         +(parsed.unknown.length?'暂不支持：'+parsed.unknown.slice(0,8).join('、')+(parsed.unknown.length>8?'等 '+parsed.unknown.length+' 项':'')+'。请从输入框提示的城市中选择。':'')
         +(!parsed.known.length&&!parsed.unknown.length?'请输入至少一个城市名。':'')
@@ -119,7 +124,8 @@
   $('downloadSample').addEventListener('click',()=>download('城市名单模板.csv','\uFEFF城市\n天津\n成都\n杭州\n'));
   function travelOptions() {
     return {favorites,month:Number($('travelMonth').value),days:Number($('travelDays').value),
-      budget:Number($('travelBudget').value),interests:Array.from(document.querySelectorAll('input[name=interest]:checked'),n=>n.value)};
+      budget:Number($('travelBudget').value),lodging:$('travelLodging').value,peak:$('travelPeak').checked,
+      interests:Array.from(document.querySelectorAll('input[name=interest]:checked'),n=>n.value)};
   }
   let map=null,cityLayer=null,routeLayer=null,ranking=[],selectedCity='',tilesReady=false;
   const mapStatus=$('mapStatus');
@@ -141,7 +147,7 @@
   }
   function heatColor(score) {return score>=75?'#bd592b':score>=60?'#899741':'#487d70';}
   function showOverview() {
-    if(map)map.fitBounds(L.latLngBounds(D.cities.map(c=>[c.lat,c.lng])),{padding:[30,30],maxZoom:4,animate:false});
+    if(map&&ranking.length)map.fitBounds(L.latLngBounds(ranking.map(c=>[c.lat,c.lng])),{padding:[40,40],maxZoom:ranking.length===1?10:6,animate:false});
   }
   function renderMap() {
     if(!map)return;
@@ -156,8 +162,7 @@
   }
   function renderCityButtons() {
     $('cityResults').replaceChildren();
-    const shortlist=ranking.slice(0,3);
-    if(selectedCity&&!shortlist.some(c=>c.name===selectedCity))shortlist.push(ranking.find(c=>c.name===selectedCity));
+    const shortlist=ranking;
     for(const c of shortlist) {
       if(!c)continue;
       const button=el('button',undefined,'city-result');button.type='button';
@@ -179,7 +184,14 @@
     heading.append(title,score);target.append(heading,el('p',c.desc));
     const why='推荐理由：'+(c.matched.length?'贴合 '+c.matched.map(t=>D.tags[t]).join(' / '):'探索不同风格')+'；'+(c.season?'所选月份在建议出行季节内':'所选月份不在本目录优选季节，请额外核实天气')+'。';
     target.append(el('p',why));
-    target.append(el('p','当地预算粗估约 '+c.budget+' 元 / 人 / 天，'+o.days+' 天约 '+(c.budget*o.days)+' 元（不含往返大交通，非实时报价）。'+(!c.affordable?'超过你设置的每日预算，可压缩住宿或换目的地。':'')+(!c.enough?'时间比建议的 '+c.days+' 天短，建议只选重点地区。':'')));
+    target.append(el('p','你的预算：'+o.budget+' 元 / 人 / 天，'+o.days+' 天共 '+(o.budget*o.days)+' 元。当地开销参考区间 '+c.cost.low+'—'+c.cost.high+' 元 / 人 / 天（'+o.days+' 天约 '+(c.cost.low*o.days)+'—'+(c.cost.high*o.days)+' 元），不含往返大交通。'));
+    const breakdown=el('div',undefined,'budget-breakdown');
+    for(const [key,label] of Object.entries({stay:'住宿 / 每人分摊',food:'日常餐饮',transport:'市内交通',visits:'游览与门票预留'})) {
+      const item=el('div',label);item.append(el('strong',c.cost.parts[key]+' 元 / 天'));breakdown.append(item);
+    }
+    target.append(breakdown,el('p','以上为参考中值拆分，合计 '+c.cost.daily+' 元 / 人 / 天，不是商家报价。'+(o.peak?'已为住宿额外预留 40% 缓冲，这不是预测实际涨价幅度。':'按普通日期做规划，实际价格以预订时为准。')+(o.lodging==='none'?'你选择了无需付费住宿，住宿按 0 元估算。':'')));
+    target.append(el('p',!c.affordable?'比参考中值少 '+(c.cost.daily-o.budget)+' 元 / 人 / 天。优先选免费景点、公共交通和经济餐饮；若需住店，请先确认能订到符合预算的房间。':o.budget<c.cost.high?'预算覆盖参考中值，但未覆盖上限，建议保留应急备用金。':'预算有一定余量，仍建议先核对住宿与往返交通，再安排付费体验。'));
+    if(!c.enough)target.append(el('p','时间比建议的 '+c.days+' 天短，建议只选重点地区。'));
     const list=el('ol'),steps=[];
     for(let i=0;i<o.days;i++) {
       const spot=c.spots[i];
@@ -191,10 +203,10 @@
     target.append(list,el('p','这是按地区整理的入门行程，不含已预订服务；同日衔接、实际车程和门票请出发前再核实。'));
     const actions=el('div',undefined,'small-actions'),save=el('button',favorites.includes(c.name)?'已收藏 ✓':'收藏这座城市 +','text-button');
     save.type='button';save.disabled=favorites.includes(c.name);
-    save.addEventListener('click',()=>{favorites.push(c.name);persist();renderFavorites();invalidateTravel();});
+    save.addEventListener('click',()=>{favorites.push(c.name);citiesChanged();});
     const copyButton=el('button','复制这份攻略 ↗','text-button');copyButton.type='button';
     const note=el('p','','fine-print');note.setAttribute('role','status');
-    copyButton.addEventListener('click',()=>copy(c.name+' · '+o.days+' 天慢游\n'+why+'\n当地预算粗估：'+c.budget+' 元/人/天，不含往返大交通。\n'+steps.map((s,i)=>'第 '+(i+1)+' 天：'+s.title+'。'+s.note).join('\n')+'\n路线为编辑建议，开放、预约、交通和价格请另行核实。\n延伸阅读：'+c.source,note));
+    copyButton.addEventListener('click',()=>copy(c.name+' · '+o.days+' 天慢游\n'+why+'\n个人预算：'+o.budget+' 元/人/天；当地开销参考：'+c.cost.low+'—'+c.cost.high+' 元/人/天，不含往返大交通，非实时报价。\n'+steps.map((s,i)=>'第 '+(i+1)+' 天：'+s.title+'。'+s.note).join('\n')+'\n路线为编辑建议，开放、预约、交通和价格请另行核实。\n延伸阅读：'+c.source,note));
     actions.append(save,copyButton,link('查最新攻略与预约 ↗',c.source));
     target.append(actions,note);
     if(map) {
@@ -216,26 +228,63 @@
   }
   let mapInitialized=false;
   function analyzeTravel(keepCity='') {
+    ranking=D.rankCities(travelOptions());
+    if(!ranking.length){
+      if(mapInitialized&&!$('travelOutput').hidden){
+        if(cityLayer)cityLayer.clearLayers();
+        if(routeLayer)routeLayer.clearLayers();
+        $('cityResults').replaceChildren();$('exploreCity').replaceChildren();
+        $('itinerary').replaceChildren(el('p','还没有选中城市。在“调整地图显示城市”里勾选，地图就会立即更新。'));
+        $('travelSummary').textContent='已选 0 座城市 · 地图不显示任何热度标记。';
+        $('travelReady').textContent='当前未选择城市，重新勾选后会立即显示。';
+        return true;
+      }
+      invalidateTravel();
+      $('travelReady').textContent='请先搜索添加或导入至少一座城市，地图只显示你选择的城市。';
+      $('cityInput').focus();
+      return false;
+    }
     $('travelOutput').hidden=false;
     $('travelLayout').classList.add('has-results');
     $('analyzeTravelButton').setAttribute('aria-expanded','true');
     $('travelReady').textContent='已生成推荐；修改偏好后可重新分析。';
     if(!mapInitialized){initMap();mapInitialized=true;}
     if(map)map.invalidateSize();
-    ranking=D.rankCities(travelOptions());
+    $('exploreCity').replaceChildren();
+    ranking.forEach(c=>{const option=el('option',c.name);option.value=c.name;$('exploreCity').append(option);});
     renderMap();
     if(map&&!keepCity)showOverview();
     const o=travelOptions();
-    $('travelSummary').textContent=(o.interests.length?'按本次兴趣':favorites.length?'按 '+favorites.length+' 座收藏城市的偏好':'还未添加偏好，先看均衡推荐')+' · '+o.month+' 月 / '+o.days+' 天 · 已分析 '+D.cities.length+' 座城市。点击城市查看地图与攻略。';
+    $('travelSummary').textContent='仅分析你已选的 '+ranking.length+' 座城市：'+ranking.map(c=>c.name).join('、')+'。'+o.month+' 月 / '+o.days+' 天 · '+o.budget+' 元/人/天。热度代表偏好与预算匹配，不加入其他目的地。';
     selectCity(keepCity||ranking[0].name,false);
+    return true;
   }
   $('travelForm').addEventListener('submit',e=>{
-    e.preventDefault();analyzeTravel();
+    e.preventDefault();
+    const pending=$('cityInput').value.trim();
+    if(pending){
+      let parsed;
+      try {parsed=D.parseCities(pending);}
+      catch(error){invalidateTravel();$('importStatus').textContent=error.message;return;}
+      importCities(pending);
+      if(!parsed.known.length)return;
+      $('cityInput').value='';
+    }
+    if(!analyzeTravel())return;
     $('travelOutput').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
   });
   $('travelForm').addEventListener('change',invalidateTravel);
   $('resetMap').addEventListener('click',showOverview);
   $('exploreCity').addEventListener('change',e=>selectCity(e.target.value,true));
+  D.cities.forEach(city=>{
+    const label=el('label'),input=el('input');
+    input.type='checkbox';input.value=city.name;
+    input.addEventListener('change',()=>{
+      favorites=input.checked?[...new Set([...favorites,city.name])]:favorites.filter(name=>name!==city.name);
+      citiesChanged();
+    });
+    label.append(input,el('span',city.name));$('mapCityChoices').append(label);
+  });
   renderFavorites();
   // Decorative travel footage only: muted, lazy and paused outside the viewport.
   const film=$('travelBackground'),filmToggle=$('travelVideoToggle');

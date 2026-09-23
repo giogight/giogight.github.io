@@ -446,7 +446,7 @@
     pongCanvas.width = Math.round(pongWidth * ratio);
     pongCanvas.height = Math.round(pongHeight * ratio);
     pongContext.setTransform(ratio, 0, 0, ratio, 0, 0);
-    paddle.width = pongWidth * (innerWidth <= 520 ? .22 : .16);
+    paddle.width = pongWidth * (innerWidth <= 520 ? .17 : .12);
     paddle.height = Math.max(10, pongHeight * .025);
     paddle.y = pongHeight - paddle.height - 18;
     paddle.x = Math.max(0, Math.min(pongWidth - paddle.width, paddle.x * pongWidth / oldWidth));
@@ -458,7 +458,7 @@
     ball.radius = Math.max(7, Math.min(10, pongWidth * .009));
     ball.x = pongWidth * (.38 + Math.random() * .24);
     ball.y = pongHeight * .22;
-    const speed = 260 + pongScore * 16;
+    const speed = 315 + pongScore * 20;
     ball.vx = speed * (.62 + Math.random() * .22) * (Math.random() > .5 ? 1 : -1);
     ball.vy = speed * direction;
   }
@@ -559,7 +559,7 @@
       if (hitsPaddle) {
         ball.y = paddle.y - ball.radius;
         const offset = (ball.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2);
-        const speed = Math.min(445, Math.hypot(ball.vx, ball.vy) * 1.085);
+        const speed = Math.min(530, Math.hypot(ball.vx, ball.vy) * 1.10);
         ball.vx = speed * Math.max(-.82, Math.min(.82, offset));
         if (Math.abs(ball.vx) < 62) ball.vx = 62 * (offset >= 0 ? 1 : -1);
         ball.vy = -Math.sqrt(Math.max(90 * 90, speed * speed - ball.vx * ball.vx));

@@ -97,6 +97,15 @@
 @media(prefers-reduced-motion:reduce) { .lab * { scroll-behavior:auto; transition:none!important; } }
 /* A quieter, on-demand travel flow. */
 .travel-output[hidden]{display:none!important}
+.lodging-field{margin-top:1rem}
+.peak-check{display:flex!important;align-items:center;gap:.5rem;margin-top:1rem}
+.budget-breakdown{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem;margin:1rem 0}
+.budget-breakdown div{background:#e9eddf;padding:.8rem;font-size:.77rem;color:#3f4d35}
+.budget-breakdown strong{display:block;font-size:1.1rem;margin-top:.3rem}
+.map-city-picker{margin:0 0 1rem;border:1px solid #c3cbb8;padding:.8rem;background:#f3f5ec}
+.map-city-picker fieldset{display:flex;flex-wrap:wrap;gap:.7rem 1rem;border:0;margin:.8rem 0 0;padding:0}
+.map-city-picker legend{font-size:.7rem;color:#637154;margin-bottom:.7rem}
+.map-city-picker label{display:flex!important;align-items:center;gap:.4rem;min-width:4.4rem;cursor:pointer}
 .travel-output{scroll-margin-top:25px}
 .travel-layout:not(.has-results){grid-template-columns:minmax(0,680px);justify-content:center}
 .travel-layout:not(.has-results) .travel-controls{padding:clamp(1.3rem,3vw,2.5rem)}
