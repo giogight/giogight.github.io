@@ -95,3 +95,15 @@
 @media(max-width:950px) { .game-workbench{grid-template-columns:1fr 1.1fr;gap:1.2rem} .travel-layout{grid-template-columns:285px minmax(0,1fr);gap:1.2rem} .city-results{grid-template-columns:1fr} .city-result{display:grid;grid-template-columns:1fr auto} .city-result small{grid-column:1/-1} .lab-heading>p{max-width:20rem} }
 @media(max-width:700px) { .landing__hero{min-height:calc(100svh - 200px)} .tool-nav{gap:.8rem 1.2rem} .tool-nav a{font-size:.8rem} .tool-nav>span{display:none} .lab{padding:3.5rem 0} .lab-heading{display:block;margin-bottom:1.5rem} .lab-heading>p{max-width:100%;margin-top:1.3rem;font-size:.8rem} .game-workbench,.travel-layout{grid-template-columns:1fr;gap:1.5rem} .game-card{grid-template-columns:26px minmax(0,1fr) auto;gap:.6rem} .game-card h3{font-size:1.12rem} .game-card a{font-size:.7rem} .game-card .card-number{font-size:1.1rem} .travel-map{height:340px} .city-results{grid-template-columns:repeat(3,minmax(0,1fr))} .city-result{display:flex;padding:.8rem .5rem} .city-result strong{font-size:1rem} .itinerary{padding:1.1rem} .field-grid{gap:.7rem} }
 @media(prefers-reduced-motion:reduce) { .lab * { scroll-behavior:auto; transition:none!important; } }
+/* A quieter, on-demand travel flow. */
+.travel-output[hidden]{display:none!important}
+.travel-output{scroll-margin-top:25px}
+.travel-layout:not(.has-results){grid-template-columns:minmax(0,680px);justify-content:center}
+.travel-layout:not(.has-results) .travel-controls{padding:clamp(1.3rem,3vw,2.5rem)}
+.travel-heading{position:relative;isolation:isolate;overflow:hidden;min-height:290px;padding:clamp(1.3rem,3vw,2.5rem);border:1px solid #c8cebf;background:#e3e7da}
+.travel-heading>div:not(.travel-film),.travel-heading>p{position:relative;z-index:1}
+.travel-film{position:absolute;inset:0;z-index:0;pointer-events:none}
+.travel-film video{width:100%;height:100%;object-fit:cover;opacity:.22;filter:saturate(.35) contrast(.8)}
+.travel-film:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(238,240,232,.82),rgba(238,240,232,.24))}
+.travel-video-toggle{position:absolute;right:1.3rem;bottom:.5rem;z-index:2;font-size:.67rem}
+@media(max-width:700px){.travel-heading{padding:1.5rem 1.1rem 2.4rem}.travel-heading h2{font-size:clamp(1.8rem,7.5vw,2.5rem)}}

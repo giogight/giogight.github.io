@@ -35,9 +35,6 @@
   const pongScoreNode = document.getElementById('pongScore');
   const pongLivesNode = document.getElementById('pongLives');
 
-  const finalVideo = document.getElementById('finalVideo');
-  const videoProgress = document.getElementById('videoProgress');
-  const videoAudioButton = document.getElementById('videoAudioButton');
 
   const selfDestruct = document.getElementById('selfDestruct');
   const destructCount = document.getElementById('destructCount');
@@ -45,8 +42,8 @@
   const explosionParticles = document.getElementById('explosionParticles');
 
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const finalScene = 10;
-  const sceneDurations = [3200, 2400, 2400, 2700, 999999, 2500, 2600, 999999, 2400, 999999, 2400];
+  const finalScene = 9;
+  const sceneDurations = [3200, 2400, 2400, 2700, 999999, 2500, 2600, 999999, 2400, 2400];
 
   let timers = [];
   let flowTimer;
@@ -60,7 +57,6 @@
   let packets = 0;
   let destructing = false;
   let photoPassed = false;
-  let videoPassed = false;
 
   let pongFrame;
   let pongRunning = false;
@@ -289,7 +285,6 @@
     });
     updateSkipControl();
     if (index !== 7) stopPong();
-    if (index !== 9) pauseVideo();
 
     if (index === 0) {
       setNetworkState('unstable', 'SYNC LOST ●', 'NEGOTIATING', '正在重建加密通道', 'mount /archive/xw --decrypt');
@@ -339,11 +334,6 @@
       tone(62, .3, 'sawtooth', .06);
       later(() => burst(true), 720);
       later(() => burst(false), 1480);
-    } else if (index === 9) {
-      setNetworkState('breached', 'PLAYBACK LOCK ●', 'STREAMING', '最终影像正在强制播放', 'stream /payload/final-video --no-skip');
-      flash();
-      burst(false);
-      beginVideo();
     } else if (index === finalScene) {
       setNetworkState('breached', 'ARCHIVE OPEN ●', 'COMPLETE', '档案接管完成', 'release /archive/xw --display');
       burst(false);
@@ -361,7 +351,7 @@
     if (index === 3) scheduleScene(4, sceneDurations[3]);
     if (index === 5) scheduleScene(6, sceneDurations[5]);
     if (index === 6) scheduleScene(7, sceneDurations[6]);
-    if (index === 8) scheduleScene(9, sceneDurations[8]);
+    if (index === 8) scheduleScene(finalScene, sceneDurations[8]);
   }
 
   function resetPhotoGate() {
@@ -411,7 +401,6 @@
     takeover.scrollLeft = 0;
     cancelFlow();
     stopPong();
-    pauseVideo();
     createExplosionParticles();
     destructReason.textContent = reason;
     destructCount.textContent = '5';
@@ -457,7 +446,7 @@
     pongCanvas.width = Math.round(pongWidth * ratio);
     pongCanvas.height = Math.round(pongHeight * ratio);
     pongContext.setTransform(ratio, 0, 0, ratio, 0, 0);
-    paddle.width = pongWidth * (innerWidth <= 520 ? .30 : .23);
+    paddle.width = pongWidth * (innerWidth <= 520 ? .22 : .16);
     paddle.height = Math.max(10, pongHeight * .025);
     paddle.y = pongHeight - paddle.height - 18;
     paddle.x = Math.max(0, Math.min(pongWidth - paddle.width, paddle.x * pongWidth / oldWidth));
@@ -469,7 +458,7 @@
     ball.radius = Math.max(7, Math.min(10, pongWidth * .009));
     ball.x = pongWidth * (.38 + Math.random() * .24);
     ball.y = pongHeight * .22;
-    const speed = 185 + pongScore * 10;
+    const speed = 260 + pongScore * 16;
     ball.vx = speed * (.62 + Math.random() * .22) * (Math.random() > .5 ? 1 : -1);
     ball.vy = speed * direction;
   }
@@ -570,7 +559,7 @@
       if (hitsPaddle) {
         ball.y = paddle.y - ball.radius;
         const offset = (ball.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2);
-        const speed = Math.min(330, Math.hypot(ball.vx, ball.vy) * 1.065);
+        const speed = Math.min(445, Math.hypot(ball.vx, ball.vy) * 1.085);
         ball.vx = speed * Math.max(-.82, Math.min(.82, offset));
         if (Math.abs(ball.vx) < 62) ball.vx = 62 * (offset >= 0 ? 1 : -1);
         ball.vy = -Math.sqrt(Math.max(90 * 90, speed * speed - ball.vx * ball.vx));
@@ -578,7 +567,7 @@
         pongScoreNode.textContent = String(pongScore);
         tone(460 + pongScore * 55, .055, 'sine', .028);
         burst(false);
-        if (pongScore >= 8) {
+        if (pongScore >= 5) {
           drawPong();
           finishPong();
           return;
@@ -622,46 +611,11 @@
     if (!pongRunning) drawPong();
   }
 
-  function pauseVideo() {
-    if (!finalVideo.paused) finalVideo.pause();
-  }
-
-  function updateVideoButton() {
-    videoAudioButton.classList.remove('is-play-request');
-    videoAudioButton.textContent = finalVideo.muted ? '开启视频声音' : '关闭视频声音';
-  }
-
-  async function beginVideo() {
-    videoPassed = false;
-    finalVideo.currentTime = 0;
-    finalVideo.muted = true;
-    videoProgress.style.width = '0%';
-    updateVideoButton();
-    try {
-      await finalVideo.play();
-    } catch {
-      videoAudioButton.textContent = '播放最终影像';
-      videoAudioButton.classList.add('is-play-request');
-      setNetworkState('breached', 'PLAYBACK WAITING ●', 'LOCKED', '点击以继续最终影像', 'await /payload/user-gesture');
-    }
-  }
-
-  function resetVideo() {
-    pauseVideo();
-    videoPassed = false;
-    finalVideo.currentTime = 0;
-    finalVideo.muted = true;
-    videoProgress.style.width = '0%';
-    updateVideoButton();
-  }
-
   function resetExperience() {
     resetPhotoGate();
     resetPong();
-    resetVideo();
     resetSelfDestruct();
     photoPassed = false;
-    videoPassed = false;
   }
 
   function startSequence() {
@@ -697,7 +651,6 @@
   function releasePage() {
     clearTimers();
     stopPong();
-    resetVideo();
     resetSelfDestruct();
     takeover.classList.remove('active', 'burst', 'burst-strong', 'dropout', 'dropout-long', 'desync');
     takeover.setAttribute('aria-hidden', 'true');
@@ -760,39 +713,6 @@
   pongBoard.addEventListener('pointerdown', event => {
     movePaddleTo(event.clientX);
     if (!pongRunning && !destructing) startPongGame();
-  });
-
-  finalVideo.addEventListener('timeupdate', () => {
-    const progress = finalVideo.duration ? finalVideo.currentTime / finalVideo.duration * 100 : 0;
-    videoProgress.style.width = `${Math.min(100, progress)}%`;
-  });
-
-  finalVideo.addEventListener('ended', () => {
-    if (currentStage !== 9 || videoPassed) return;
-    videoPassed = true;
-    videoProgress.style.width = '100%';
-    setNetworkState('breached', 'PLAYBACK COMPLETE ●', 'ACCEPTED', '最终影像传输完成', 'unlock /archive/final');
-    flash();
-    burst(true);
-    later(() => enterScene(10), reducedMotion ? 260 : 950);
-  });
-
-  videoAudioButton.addEventListener('click', async () => {
-    if (currentStage !== 9) return;
-    if (finalVideo.paused) {
-      finalVideo.muted = false;
-      try {
-        await finalVideo.play();
-      } catch {
-        finalVideo.muted = true;
-        videoAudioButton.textContent = '再次点击播放';
-        videoAudioButton.classList.add('is-play-request');
-        return;
-      }
-    } else {
-      finalVideo.muted = !finalVideo.muted;
-    }
-    updateVideoButton();
   });
 
   enterButton.addEventListener('click', startSequence);

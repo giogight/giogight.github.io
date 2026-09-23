@@ -87,10 +87,10 @@
 .profile-strip strong{font:800 1rem/1 var(--display)}
 .dossier__grid{grid-template-columns:repeat(3,1fr)}
 .dossier__grid section{min-height:13.5rem}
-.sequence{grid-template-columns:repeat(11,1fr)}
+.sequence{grid-template-columns:repeat(10,1fr)}
 .sequence i.current:after{animation-duration:var(--sequence-duration,2.4s)}
 .takeover[data-stage="4"] .sequence{opacity:1}
-.takeover[data-stage="10"] .sequence{opacity:0}
+.takeover[data-stage="9"] .sequence{opacity:0}
 
 @keyframes logo-materialize{0%{opacity:0;transform:scale(.7);filter:blur(14px)}52%{opacity:1;transform:scale(1.06);filter:blur(0) brightness(2)}100%{opacity:1;transform:scale(1);filter:blur(0)}}
 @keyframes logo-aura{0%{opacity:0;transform:scale(.55)}45%{opacity:1;transform:scale(1.18)}100%{opacity:.65;transform:scale(1)}}

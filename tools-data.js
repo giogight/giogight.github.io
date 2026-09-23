@@ -6,6 +6,9 @@
   const steam = id => 'https://store.steampowered.com/app/' + id + '/';
   // time: recommended minimum time reserved, not an official round duration.
   const games = [
+    {name:'双人成行',min:2,max:2,platforms:['ps','switch'],time:90,moods:['coop'],free:[],easy:false,url:'https://www.ea.com/games/it-takes-two',desc:'两个人分工合作的冒险，可同屏，也可在线相约。',note:'PS4 / PS5、Switch 对应版本；需一人拥有完整版。线上模式请核对好友通行证、会员及版本兼容要求。'},
+    {name:'胡闹厨房 2',min:2,max:4,platforms:['ps','switch'],time:45,moods:['coop','party'],free:[],easy:false,url:'https://www.team17.com/games/overcooked-2/',desc:'一起切菜、上菜、拯救厨房；适合四人合作和热闹聚会。',note:'PS4 版（PS5 请核对兼容） / Switch 版，最多 4 人；本地与线上模式不同，别与“全都好吃”版本混用。'},
+    {name:'星露谷物语',min:2,max:4,platforms:['ps','switch'],time:90,moods:['chill','coop'],free:[],easy:true,url:'https://www.stardewvalley.net/',desc:'一起种田、钓鱼、布置农场，适合固定搭子慢慢经营。',note:'本条按主机最多 4 人联机推荐；PS4 / Switch 对应版本，不跨平台。本地分屏人数与在线人数可能不同，请核对版本。'},
     {name:'双人成行',min:2,max:2,platforms:['pc'],time:90,moods:['coop'],free:[],easy:false,url:steam(1426210),desc:'专为两个人设计的合作冒险；适合愿意一起磨合操作的搭子。',note:'需一位玩家购买；好友通行证与账号要求见商店。'},
     {name:'胡闹厨房 2',min:2,max:4,platforms:['pc'],time:45,moods:['coop','party'],free:[],easy:false,url:steam(728880),desc:'切菜、传菜、救厨房。适合能接受手忙脚乱和反复配合的小队。',note:'购买前核对版本；不默认不同商店版本互通。'},
     {name:'人类一败涂地',min:2,max:8,platforms:['pc'],time:45,moods:['coop','party'],free:[],easy:true,url:steam(477160),desc:'软绵绵的物理解谜，失败也很好笑，适合不追求输赢的朋友。',note:'PC 联机房间；手机版本不在本条推荐范围。'},
@@ -15,8 +18,8 @@
     {name:'深岩银河',min:2,max:4,platforms:['pc'],time:45,moods:['coop'],free:[],easy:false,url:steam(548430),desc:'四种职业协力采矿与撤离，适合喜欢分工和任务目标的小队。',note:'有射击与洞穴探索；先核对商店之间的联机支持。'},
     {name:'Pummel Party',min:2,max:8,platforms:['pc'],time:90,moods:['party','competitive'],free:[],easy:true,url:steam(880940),desc:'棋盘加迷你游戏，适合一群朋友开轻松互坑局。',note:'含卡通暴力；完整棋盘局需预留更多时间。'},
     {name:'鹅鸭杀',min:5,max:16,platforms:['pc','mobile'],time:45,moods:['party'],free:['pc','mobile'],easy:false,url:steam(1568590),desc:'靠聊天、观察和推理找出阵营，适合人数多且愿意开麦的朋友。',note:'含内购；按至少 5 人的实用组局人数推荐，区服和语音自行确认。'},
-    {name:'Brawlhalla',min:2,max:8,platforms:['pc','mobile'],time:20,moods:['competitive','party'],free:['pc','mobile'],easy:false,url:'https://www.brawlhalla.com/',desc:'平台格斗，短时间也能打几轮。适合想来一点操作对抗的搭子。',note:'按自定义房间推荐；含内购，手机地区可用性以商店为准。'},
-    {name:'Among Us',min:4,max:15,platforms:['pc','mobile'],time:45,moods:['party'],free:['mobile'],easy:true,url:'https://www.innersloth.com/games/among-us/',desc:'做任务、找线索、讨论投票；适合想用聊天和推理撑起一局的朋友。',note:'PC 付费、手机可免费入门；含内购，建议同区服并提前约好语音。'},
+    {name:'Brawlhalla',min:2,max:8,platforms:['pc','mobile','ps','switch'],time:20,moods:['competitive','party'],free:['pc','mobile','ps','switch'],easy:false,url:'https://www.brawlhalla.com/',desc:'平台格斗，短时间也能打几轮。适合想来一点操作对抗的搭子。',note:'按自定义房间推荐；含内购，手机地区可用性以商店为准。'},
+    {name:'Among Us',min:4,max:15,platforms:['pc','mobile','ps','switch'],time:45,moods:['party'],free:['mobile'],easy:true,url:'https://www.innersloth.com/games/among-us/',desc:'做任务、找线索、讨论投票；适合想用聊天和推理撑起一局的朋友。',note:'PC / 主机付费、手机可免费入门；含内购。主机请核实线上会员，建议同区服并提前约好语音。'},
     {name:'光·遇',min:2,max:4,platforms:['mobile'],time:45,moods:['chill','coop'],free:['mobile'],easy:true,url:'https://sky.163.com/',desc:'一起跑图、看风景、探索，适合不想有排名压力的轻松搭子。',note:'这里推荐 2—4 人同行，不代表服务器人数上限；含内购，先确认同服。'}
   ];
   // Coordinates use WGS84 to match OpenStreetMap. Each day is an area-based suggestion.

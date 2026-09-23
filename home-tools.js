@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const D = window.XWTools;
+  const platformNames={pc:'电脑 / PC',mobile:'手机',ps:'PlayStation / PS4 · PS5',switch:'Nintendo Switch'};
   const $ = id => document.getElementById(id);
   // All user-provided strings enter the DOM as text, never HTML.
   function el(tag, text, cls) {
@@ -58,7 +59,7 @@
   $('randomGame').addEventListener('click',()=>renderGames(true));
   $('copyGame').addEventListener('click',()=>{
     const o=gameOptions();
-    copy('今晚一起玩！'+o.size+' 人 / '+(o.platform==='pc'?'电脑':'手机')+' / 预留 '+o.time+' 分钟\n'+shownGames.map(g=>g.name+'：'+g.desc+'\n'+g.url).join('\n\n')+'\n来自小文的游戏搭子决策器：https://giogight.github.io/#game-lab',$('gameNotice'));
+    copy('今晚一起玩！'+o.size+' 人 / '+platformNames[o.platform]+' / 预留 '+o.time+' 分钟\n'+shownGames.map(g=>g.name+'：'+g.desc+'\n'+g.url).join('\n\n')+'\n来自小文的游戏搭子决策器：https://giogight.github.io/#game-lab',$('gameNotice'));
   });
   renderGames();
 
@@ -83,7 +84,7 @@
     for(const name of favorites) {
       const chip=el('span',undefined,'city-chip'), remove=el('button','×');
       remove.type='button';remove.setAttribute('aria-label','移除 '+name);
-      remove.addEventListener('click',()=>{favorites=favorites.filter(n=>n!==name);persist();renderFavorites();analyzeTravel();});
+      remove.addEventListener('click',()=>{favorites=favorites.filter(n=>n!==name);persist();renderFavorites();invalidateTravel();});
       chip.append(el('span',name),remove);$('cityChips').append(chip);
     }
     if(!favorites.length) $('cityChips').append(el('p','还没有收藏。添加几个喜欢的城市，让推荐更懂你。','fine-print'));
@@ -97,7 +98,7 @@
       const parsed=D.parseCities(text,isJSON), before=favorites.length;
       const existing=parsed.known.filter(n=>favorites.includes(n)).length;
       favorites=[...new Set([...favorites,...parsed.known])];
-      persist();renderFavorites();analyzeTravel();
+      persist();renderFavorites();invalidateTravel();
       $('importStatus').textContent='新增 '+(favorites.length-before)+' 座；跳过重复 '+(existing+parsed.duplicates)+' 项。'
         +(parsed.unknown.length?'暂不支持：'+parsed.unknown.slice(0,8).join('、')+(parsed.unknown.length>8?'等 '+parsed.unknown.length+' 项':'')+'。请从输入框提示的城市中选择。':'')
         +(!parsed.known.length&&!parsed.unknown.length?'请输入至少一个城市名。':'')
@@ -190,7 +191,7 @@
     target.append(list,el('p','这是按地区整理的入门行程，不含已预订服务；同日衔接、实际车程和门票请出发前再核实。'));
     const actions=el('div',undefined,'small-actions'),save=el('button',favorites.includes(c.name)?'已收藏 ✓':'收藏这座城市 +','text-button');
     save.type='button';save.disabled=favorites.includes(c.name);
-    save.addEventListener('click',()=>{favorites.push(c.name);persist();renderFavorites();analyzeTravel(c.name);});
+    save.addEventListener('click',()=>{favorites.push(c.name);persist();renderFavorites();invalidateTravel();});
     const copyButton=el('button','复制这份攻略 ↗','text-button');copyButton.type='button';
     const note=el('p','','fine-print');note.setAttribute('role','status');
     copyButton.addEventListener('click',()=>copy(c.name+' · '+o.days+' 天慢游\n'+why+'\n当地预算粗估：'+c.budget+' 元/人/天，不含往返大交通。\n'+steps.map((s,i)=>'第 '+(i+1)+' 天：'+s.title+'。'+s.note).join('\n')+'\n路线为编辑建议，开放、预约、交通和价格请另行核实。\n延伸阅读：'+c.source,note));
@@ -207,7 +208,20 @@
       if(zoom) map.fitBounds(L.latLngBounds(spots.map(s=>[s.lat,s.lng])),{padding:[45,50],maxZoom:12,animate:false});
     }
   }
+  function invalidateTravel() {
+    $('travelOutput').hidden=true;
+    $('travelLayout').classList.remove('has-results');
+    $('analyzeTravelButton').setAttribute('aria-expanded','false');
+    $('travelReady').textContent='偏好已更新，点击“分析我的下一站”生成地图与攻略。';
+  }
+  let mapInitialized=false;
   function analyzeTravel(keepCity='') {
+    $('travelOutput').hidden=false;
+    $('travelLayout').classList.add('has-results');
+    $('analyzeTravelButton').setAttribute('aria-expanded','true');
+    $('travelReady').textContent='已生成推荐；修改偏好后可重新分析。';
+    if(!mapInitialized){initMap();mapInitialized=true;}
+    if(map)map.invalidateSize();
     ranking=D.rankCities(travelOptions());
     renderMap();
     if(map&&!keepCity)showOverview();
@@ -215,10 +229,33 @@
     $('travelSummary').textContent=(o.interests.length?'按本次兴趣':favorites.length?'按 '+favorites.length+' 座收藏城市的偏好':'还未添加偏好，先看均衡推荐')+' · '+o.month+' 月 / '+o.days+' 天 · 已分析 '+D.cities.length+' 座城市。点击城市查看地图与攻略。';
     selectCity(keepCity||ranking[0].name,false);
   }
-  $('travelForm').addEventListener('submit',e=>{e.preventDefault();analyzeTravel();});
-  $('travelForm').addEventListener('change',()=>analyzeTravel());
+  $('travelForm').addEventListener('submit',e=>{
+    e.preventDefault();analyzeTravel();
+    $('travelOutput').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
+  });
+  $('travelForm').addEventListener('change',invalidateTravel);
   $('resetMap').addEventListener('click',showOverview);
   $('exploreCity').addEventListener('change',e=>selectCity(e.target.value,true));
-  initMap();renderFavorites();analyzeTravel();
+  renderFavorites();
+  // Decorative travel footage only: muted, lazy and paused outside the viewport.
+  const film=$('travelBackground'),filmToggle=$('travelVideoToggle');
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  let filmVisible=false,filmPaused=reduced.matches;
+  function syncFilm() {
+    const allowed=filmVisible&&!filmPaused&&!document.hidden&&!document.body.classList.contains('pre-hijack');
+    filmToggle.textContent=filmPaused?'播放背景':'暂停背景';
+    filmToggle.setAttribute('aria-pressed',String(filmPaused));
+    if(allowed) {
+      if(!film.getAttribute('src'))film.src=film.dataset.src;
+      film.muted=true;
+      film.play().catch(()=>{filmPaused=true;filmToggle.textContent='播放背景';filmToggle.setAttribute('aria-pressed','true');});
+    } else film.pause();
+  }
+  filmToggle.addEventListener('click',()=>{filmPaused=!filmPaused;syncFilm();});
+  new IntersectionObserver(entries=>{filmVisible=entries[0].isIntersecting;syncFilm();},{threshold:.05}).observe(film);
+  new MutationObserver(syncFilm).observe(document.body,{attributes:true,attributeFilter:['class']});
+  document.addEventListener('visibilitychange',syncFilm);
+  reduced.addEventListener('change',e=>{filmPaused=e.matches;syncFilm();});
+  syncFilm();
   if(!storageAvailable)$('importStatus').textContent='之前的本地收藏无法读取，已使用空名单；可重新导入或添加城市。';
 })();

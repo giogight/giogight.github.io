@@ -35,20 +35,20 @@
           <h3>组队条件 <span>YOUR PARTY</span></h3>
           <div class="field-grid">
             <label>一起玩的人数<select id="partySize"><option value="2">2 人 · 双人搭子</option><option value="3">3 人</option><option value="4" selected>4 人 · 刚好一队</option><option value="5">5 人</option><option value="6">6 人</option><option value="8">8 人 · 热闹局</option></select></label>
-            <label>大家使用的平台<select id="gamePlatform"><option value="pc">电脑 / PC</option><option value="mobile">手机</option></select></label>
+            <label>大家使用的平台<select id="gamePlatform"><option value="pc">电脑 / PC</option><option value="mobile">手机</option><option value="ps">PlayStation / PS4 · PS5</option><option value="switch">Nintendo Switch</option></select></label>
             <label>今晚能玩多久<select id="gameTime"><option value="20">20 分钟</option><option value="45">45 分钟</option><option value="90" selected>90 分钟</option><option value="180">3 小时</option></select></label>
             <label>想要的气氛<select id="gameMood"><option value="any">都可以</option><option value="coop">一起合作</option><option value="party">热闹聚会</option><option value="competitive">来点竞技</option><option value="chill">放松慢玩</option></select></label>
           </div>
           <div class="check-row"><label><input id="freeOnly" type="checkbox">只看免费入门</label><label><input id="beginnerOnly" type="checkbox">照顾新手搭子</label></div>
           <button class="lab-button primary" type="submit">匹配今晚的游戏 <span>↗</span></button>
-          <p class="fine-print">所有人按同一平台匹配；不默认支持跨平台联机。时间是建议预留，价格、区服与联机条件请以官方页面为准。</p>
+          <p class="fine-print">所有人按同一平台匹配；不默认支持跨平台联机。主机在线联机可能另需会员，版本、区服和本地人数请核对官方说明。时间是建议预留，价格、区服与联机条件请以官方页面为准。</p>
         </form>
         <div class="game-output"><div class="result-header"><p id="gameSummary" role="status"></p><button class="text-button" id="randomGame" type="button">帮我抽一个 ↻</button></div><div id="gameResults" class="game-results"></div><button class="text-button" id="copyGame" type="button">复制组队邀请 ↗</button><p class="fine-print" id="gameNotice" role="status"></p></div>
       </div>
     </section>
     <section class="lab travel-lab" id="travel-lab" aria-labelledby="travel-title">
-      <header class="lab-heading"><div><p class="lab-kicker">02 / YOUR NEXT COORDINATES</p><h2 id="travel-title">把喜欢的城市，<br>连成下一次出发。</h2></div><p>收藏城市 → 分析偏好 → 地图选目的地。<br>不用翻几十篇攻略，先找到适合自己的方向。</p></header>
-      <div class="travel-layout">
+      <header class="lab-heading travel-heading"><div class="travel-film" aria-hidden="true"><video id="travelBackground" data-src="assets/final-video.mp4" muted loop playsinline preload="none" tabindex="-1"></video></div><div><p class="lab-kicker">02 / YOUR NEXT COORDINATES</p><h2 id="travel-title">把喜欢的城市，<br>连成下一次出发。</h2></div><p>收藏城市 → 分析偏好 → 地图选目的地。<br>不用翻几十篇攻略，先找到适合自己的方向。</p><button id="travelVideoToggle" class="text-button travel-video-toggle" type="button" aria-pressed="false">暂停背景</button></header>
+      <div class="travel-layout" id="travelLayout">
         <aside class="lab-panel travel-controls">
           <h3>我的旅行偏好 <span>WISH LIST</span></h3>
           <form id="cityForm"><label for="cityInput">加入喜欢的城市</label><div class="input-row"><input id="cityInput" list="cityOptions" placeholder="例如：天津、成都、大理" maxlength="500" autocomplete="off"><button class="lab-button" type="submit">添加</button></div><datalist id="cityOptions"></datalist></form>
@@ -60,11 +60,11 @@
             <div class="field-grid"><label>出发月份<select id="travelMonth"></select></label><label>旅行天数<select id="travelDays"><option value="2">2 天</option><option value="3" selected>3 天</option><option value="4">4 天</option><option value="5">5 天</option></select></label></div>
             <label>每天当地预算 / 每人<select id="travelBudget"><option value="300">约 300 元 · 节制一点</option><option value="500" selected>约 500 元 · 舒适出行</option><option value="800">约 800 元 · 更宽裕</option></select></label>
             <fieldset class="interest-options"><legend>这次更想体验什么？</legend><label><input type="checkbox" name="interest" value="food">美食</label><label><input type="checkbox" name="interest" value="history">人文古迹</label><label><input type="checkbox" name="interest" value="nature">自然山水</label><label><input type="checkbox" name="interest" value="coast">海边</label><label><input type="checkbox" name="interest" value="city">城市漫游</label></fieldset>
-            <button class="lab-button primary" type="submit">分析我的下一站 <span>↗</span></button>
+            <button class="lab-button primary" id="analyzeTravelButton" type="submit" aria-expanded="false" aria-controls="travelOutput">分析我的下一站 <span>↗</span></button>
           </form>
-          <p class="fine-print">免费偏好评分，未接入 AI 大模型。收藏只保存在当前浏览器；清理浏览数据会丢失，可先导出备份。</p>
+          <p class="fine-print">免费偏好评分，未接入 AI 大模型。收藏只保存在当前浏览器；清理浏览数据会丢失，可先导出备份。</p><p class="fine-print" id="travelReady" role="status">设置好偏好后，点击“分析我的下一站”查看地图与攻略。</p>
         </aside>
-        <div class="travel-output">
+        <div class="travel-output" id="travelOutput" hidden>
           <div class="map-topbar"><div><p class="lab-kicker">DESTINATION SIGNALS</p><h3>旅行偏好热力地图</h3></div><button id="resetMap" class="text-button" type="button">全国视野 ↗</button></div>
           <div id="travelMap" class="travel-map" aria-label="目的地推荐地图，可缩放及点击城市；也可使用下方城市列表"></div>
           <div class="map-legend"><span><i></i>低匹配 → 高匹配</span><span>圆圈 = 城市评分 · 连线 = 地点顺序示意</span></div>
@@ -120,15 +120,14 @@
 
     <article class="scene scene--game scene--object" data-scene="6"><div class="object-layout"><div class="object-copy"><p class="scene-code">INTEREST FILE / 03</p><h2>游戏</h2><p>喜欢沉浸在新的规则与世界里。挑战、探索和与朋友并肩作战，是我放松与充电的方式。</p><dl><div><dt>TYPE</dt><dd>INTERACTIVE WORLD</dd></div><div><dt>PLAYER</dt><dd>CONNECTED</dd></div></dl></div><div class="object-stage"><div class="focus-reticle" aria-hidden="true"><i></i><i></i><i></i><i></i></div><img src="assets/cyber-controller.png" alt="无品牌黑色游戏手柄，带有紫色与青色光效"><span class="object-id">PLAYER_03<br>SESSION ACTIVE</span></div></div></article>
 
-    <article class="scene scene--pong" data-scene="7"><div class="pong-gate"><header><div><p class="scene-code">HUMAN INPUT / REQUIRED</p><h2>接球验证</h2></div><div class="pong-stats"><span>拦截 <b id="pongScore">0</b> / 8</span><span>容错 <b id="pongLives">3</b></span></div></header><div class="pong-board" id="pongBoard" tabindex="0" role="application" aria-label="接球小游戏，移动鼠标、手指或方向键控制下方挡板"><canvas id="pongCanvas"></canvas><div class="pong-start" id="pongStart"><p>移动鼠标、手指或方向键控制挡板<br>成功接住 8 次即可继续 · 球速逐渐加快</p><button id="pongStartButton" type="button">启动交互验证</button></div><div class="pong-result" id="pongResult" aria-live="polite"></div></div><footer><span>难度 / CHALLENGE</span><span>窄挡板 · 3 次容错</span></footer></div></article>
+    <article class="scene scene--pong" data-scene="7"><div class="pong-gate"><header><div><p class="scene-code">HUMAN INPUT / REQUIRED</p><h2>接球验证</h2></div><div class="pong-stats"><span>拦截 <b id="pongScore">0</b> / 5</span><span>容错 <b id="pongLives">3</b></span></div></header><div class="pong-board" id="pongBoard" tabindex="0" role="application" aria-label="接球小游戏，移动鼠标、手指或方向键控制下方挡板"><canvas id="pongCanvas"></canvas><div class="pong-start" id="pongStart"><p>移动鼠标、手指或方向键控制挡板<br>成功接住 5 次即可继续 · 高速反弹挑战</p><button id="pongStartButton" type="button">启动交互验证</button></div><div class="pong-result" id="pongResult" aria-live="polite"></div></div><footer><span>难度 / CHALLENGE</span><span>更窄挡板 · 3 次容错</span></footer></div></article>
 
     <article class="scene scene--fracture" data-scene="8"><div class="fracture-card"><p class="scene-code">DATA INTEGRITY FAILURE</p><h2 data-text="档案重组中">档案重组中</h2><div class="packet-row" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p>PACKET RECOVERY · 87%</p></div></article>
 
-    <article class="scene scene--video" data-scene="9"><div class="video-gate"><header><p class="scene-code">FINAL PAYLOAD / PLAYBACK LOCKED</p><h2>猜猜这是哪</h2><p>传输完成前，档案不会释放。</p></header><div class="video-frame"><video id="finalVideo" src="assets/final-video.mp4" playsinline preload="metadata" muted></video><div class="video-scan" aria-hidden="true"></div><span class="video-id">PAYLOAD_09 / PLAYING</span></div><div class="video-progress"><i id="videoProgress"></i></div><button class="video-audio" id="videoAudioButton" type="button">开启视频声音</button></div></article>
 
-    <article class="scene scene--final" data-scene="10"><div class="dossier"><header class="dossier__header"><div><p class="scene-code">DECRYPTION COMPLETE</p><h2>个人档案</h2></div><span>XIAOWEN<br>RECORD / 017</span></header><div class="profile-strip"><span><small>SUBJECT</small><strong>小文</strong></span><span><small>GENDER</small><strong>男</strong></span><span><small>AGE</small><strong>25</strong></span><span><small>LOCATION</small><strong>天津</strong></span></div><div class="dossier__grid"><section><span>01 / CAPTURE</span><h3>摄影</h3><p>用镜头收集光线、情绪和生活里不经意的瞬间。</p><b>VISUAL MEMORY</b></section><section><span>02 / EXPLORE</span><h3>旅游</h3><p>走进陌生的坐标，用新的风景刷新看世界的方式。</p><b>OPEN WORLD</b></section><section><span>03 / PLAY</span><h3>游戏</h3><p>在虚拟世界里挑战、探索，也享受并肩作战的时刻。</p><b>SESSION ACTIVE</b></section></div><div class="dossier__actions"><button id="replayButton" type="button">再次入侵 ↻</button><button id="releaseButton" type="button">返回正常页面</button></div></div></article>
+    <article class="scene scene--final" data-scene="9"><div class="dossier"><header class="dossier__header"><div><p class="scene-code">DECRYPTION COMPLETE</p><h2>个人档案</h2></div><span>XIAOWEN<br>RECORD / 017</span></header><div class="profile-strip"><span><small>SUBJECT</small><strong>小文</strong></span><span><small>GENDER</small><strong>男</strong></span><span><small>AGE</small><strong>25</strong></span><span><small>LOCATION</small><strong>天津</strong></span></div><div class="dossier__grid"><section><span>01 / CAPTURE</span><h3>摄影</h3><p>用镜头收集光线、情绪和生活里不经意的瞬间。</p><b>VISUAL MEMORY</b></section><section><span>02 / EXPLORE</span><h3>旅游</h3><p>走进陌生的坐标，用新的风景刷新看世界的方式。</p><b>OPEN WORLD</b></section><section><span>03 / PLAY</span><h3>游戏</h3><p>在虚拟世界里挑战、探索，也享受并肩作战的时刻。</p><b>SESSION ACTIVE</b></section></div><div class="dossier__actions"><button id="replayButton" type="button">再次入侵 ↻</button><button id="releaseButton" type="button">返回正常页面</button></div></div></article>
 
-    <nav class="sequence" id="sequence" aria-label="入侵进度"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></nav><div class="white-flash" id="whiteFlash" aria-hidden="true"></div>
+    <nav class="sequence" id="sequence" aria-label="入侵进度"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></nav><div class="white-flash" id="whiteFlash" aria-hidden="true"></div>
     <section class="self-destruct" id="selfDestruct" aria-hidden="true"><div class="destruct-grid" aria-hidden="true"></div><div class="destruct-core"><p>CRITICAL SECURITY FAILURE</p><h2>该设备准备自毁</h2><strong id="destructCount">5</strong><span id="destructReason">验证失败</span><div class="destruct-meter"><i></i></div><small>SIMULATED SEQUENCE / 视觉模拟</small></div><div class="explosion-bloom" aria-hidden="true"></div><div class="explosion-particles" id="explosionParticles" aria-hidden="true"></div><div class="device-safe" id="deviceSafe"><b>SIMULATION COMPLETE</b><span>仅为视觉模拟 · 设备安全</span></div></section>
   </section>
   <script src="app.js"></script>
