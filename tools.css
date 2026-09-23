@@ -1,0 +1,97 @@
+/* Normal-page tools: paper, ink and a restrained chartreuse accent. */
+.landing { display:block; }
+.landing__hero { min-height:calc(100svh - 175px); }
+.tool-nav { display:flex; align-items:center; gap:2rem; flex-wrap:wrap; padding:1.3rem 0; border-block:1px solid #111214; }
+.tool-nav a { color:inherit; text-decoration:none; font-weight:750; font-size:.94rem; }
+.tool-nav a:hover { text-decoration:underline; text-underline-offset:5px; }
+.tool-nav>span { margin-left:auto; color:#5a5c56; font-size:.8rem; }
+.lab { max-width:1440px; margin:auto; padding:6rem 0; color-scheme:light; scroll-margin-top:25px; --accent:#d5ed83; --ink:#1d2520; }
+.lab-heading { display:flex; justify-content:space-between; align-items:end; gap:2rem; margin-bottom:2.5rem; }
+.lab-kicker { font:700 .68rem/1.6 var(--mono); letter-spacing:.16em; color:#55634a; margin:0 0 1rem; }
+.lab-heading h2 { font-size:clamp(2.2rem,4.7vw,4.7rem); font-weight:850; letter-spacing:-.055em; line-height:1.16; margin:0; }
+.lab-heading>p { max-width:29rem; font-size:.94rem; line-height:1.9; color:#575c56; }
+.game-workbench { display:grid; grid-template-columns:minmax(280px,.85fr) minmax(0,1.35fr); gap:2rem; }
+.lab-panel { background:#f6f6f1; border:1px solid #cbd0c3; padding:clamp(1.15rem,2.6vw,2rem); }
+.lab h3 { margin:0 0 1.5rem; font-size:1.12rem; letter-spacing:-.02em; }
+.lab-panel h3 { display:flex; justify-content:space-between; align-items:center; gap:1rem; }
+.lab-panel h3>span { font:600 .6rem var(--mono); letter-spacing:.1em; color:#6b7366; }
+.field-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.lab label { display:block; font-size:.8rem; font-weight:700; line-height:1.6; }
+.lab select,.lab input:not([type=checkbox]):not([type=file]),.lab textarea { display:block; width:100%; min-width:0; font:inherit; font-weight:450; padding:.8rem .65rem; margin-top:.4rem; border:1px solid #c3c8bb; border-radius:0; background:#fff; color:#20251e; }
+.lab input[type=checkbox] { accent-color:#344b24; width:16px; height:16px; margin:0; }
+.lab textarea { resize:vertical; }
+.check-row { display:flex; flex-wrap:wrap; gap:1rem; padding:1.5rem 0; }
+.check-row label,.interest-options label { display:flex; align-items:center; gap:.5rem; }
+.lab-button { display:inline-flex; align-items:center; justify-content:space-between; gap:1rem; min-height:44px; padding:.8rem 1rem; border:1px solid var(--ink); font-size:.88rem; background:transparent; color:var(--ink); cursor:pointer; font-weight:700; }
+.lab-button.primary { width:100%; background:var(--ink); color:#eff5df; }
+.lab-button:hover { background:var(--accent); color:var(--ink); }
+.lab :focus-visible,.tool-nav a:focus-visible { outline:3px solid #648333; outline-offset:3px; }
+.fine-print { font-size:.73rem; line-height:1.75; color:#626a5c; margin:.8rem 0 0; }
+.result-header { display:flex; justify-content:space-between; gap:1rem; align-items:center; border-bottom:1px solid #b9c0b1; padding-bottom:1rem; }
+.result-header p { margin:0; font-size:.8rem; }
+.text-button { padding:.5rem 0; min-height:40px; background:none; border:0; color:#344a25; font:700 .8rem var(--body); text-decoration:underline; text-underline-offset:4px; cursor:pointer; }
+.text-button:disabled { opacity:.4; cursor:default; }
+.game-results { margin-bottom:1rem; }
+.game-card { display:grid; grid-template-columns:42px minmax(0,1fr) auto; gap:1rem; padding:1.3rem 0; border-bottom:1px solid #c2c7ba; }
+.game-card .card-number { color:#68755e; font:500 1.4rem var(--mono); }
+.game-card h3 { margin:0 0 .5rem; font-size:1.25rem; }
+.game-card p { margin:.4rem 0; font-size:.82rem; line-height:1.7; color:#4b5546; }
+.game-card a { align-self:start; padding:5px; color:inherit; font-size:.8rem; text-decoration:none; border-bottom:1px solid; white-space:nowrap; }
+.badges { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.7rem; }
+.badge { padding:.25rem .45rem; border:1px solid #c2cbb6; font-size:.66rem; color:#3c4d31; background:#eef0e7; }
+.empty-state { padding:2.5rem 1rem; line-height:1.8; border-bottom:1px solid #b9c0b1; }
+.travel-lab { border-top:1px solid #adb4a4; }
+.travel-layout { display:grid; grid-template-columns:335px minmax(0,1fr); gap:2rem; align-items:start; }
+.travel-controls { padding:1.4rem; }
+.travel-controls>form+form { margin-top:1rem; }
+.input-row { display:flex; gap:.4rem; align-items:end; margin-bottom:1rem; }
+.input-row input { flex:1; }
+.input-row button { flex-shrink:0; }
+.city-chips { display:flex; flex-wrap:wrap; gap:.35rem; }
+.city-chip { display:flex; align-items:center; gap:.5rem; background:#e5eccf; padding:.3rem .4rem .3rem .65rem; border:1px solid #ccd6b5; font-size:.76rem; }
+.city-chip button { border:0; background:none; font-size:1rem; cursor:pointer; min-width:25px; min-height:28px; }
+.import-details { margin:1.2rem 0 .6rem; border-block:1px solid #d4d8cc; padding:.9rem 0; }
+.lab summary { cursor:pointer; font-size:.78rem; font-weight:700; line-height:1.6; }
+.upload-label { padding:1rem 0 .4rem; }
+.upload-label input { width:100%; margin-top:.5rem; font-size:.7rem; }
+.small-actions { display:flex; flex-wrap:wrap; gap:.3rem 1rem; }
+.feedback { font-size:.76rem; color:#755013; line-height:1.65; overflow-wrap:anywhere; }
+.travel-controls .field-grid { margin:1.1rem 0; }
+.interest-options { margin:1.2rem 0; padding:.8rem 0; border:0; display:flex; flex-wrap:wrap; gap:.7rem 1rem; }
+.interest-options legend { font-size:.8rem; font-weight:700; }
+.interest-options label { font-size:.75rem; }
+.map-topbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.map-topbar .lab-kicker { margin:0 0 .4rem; }
+.map-topbar h3 { margin-bottom:1rem; }
+.travel-map { width:100%; height:420px; border:1px solid #b9c3ae; background:repeating-linear-gradient(0deg,transparent 0 39px,#d2d9c9 40px),repeating-linear-gradient(90deg,#e5e9de 0 39px,#d2d9c9 40px); z-index:0; isolation:isolate; }
+.travel-map .leaflet-container { font-family:var(--body); }
+.leaflet-tooltip { border:0; border-radius:2px; font:700 11px var(--body); color:#26331e; box-shadow:none; background:rgba(255,255,248,.9); }
+.leaflet-container { font-family:var(--body); }
+.map-legend { display:flex; justify-content:space-between; gap:.6rem; flex-wrap:wrap; font-size:.66rem; color:#58634c; padding:.65rem 0; }
+.map-legend i { display:inline-block; width:60px; height:7px; background:linear-gradient(90deg,#82aba2,#b6c463,#d97439); margin-right:8px; }
+.travel-summary { font-size:.85rem; font-weight:650; margin:1.6rem 0 .9rem; line-height:1.7; }
+.explore-city { display:flex!important; gap:1rem; align-items:center; margin-bottom:1rem; }
+.explore-city select { flex:1; max-width:200px; margin:0!important; }
+.city-results { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.65rem; }
+.city-result { text-align:left; border:1px solid #bfc7b6; background:#f0f1ea; color:#273320; padding:1rem .8rem; cursor:pointer; display:flex; flex-direction:column; gap:.6rem; }
+.city-result[aria-pressed=true] { background:#dcebb4; border-color:#485e30; box-shadow:inset 0 3px #485e30; }
+.city-result strong { font-size:1.15rem; }
+.city-result span { font:600 .7rem var(--mono); }
+.city-result small { font-size:.68rem; line-height:1.7; color:#516046; }
+.itinerary { margin-top:1.4rem; padding:1.5rem; background:#f7f7f1; border:1px solid #bfc7b6; }
+.itinerary-heading { display:flex; justify-content:space-between; align-items:start; gap:1rem; }
+.itinerary-heading h3 { margin:.4rem 0 .8rem; font-size:1.8rem; letter-spacing:-.06em; }
+.itinerary-heading .score { font:500 2.6rem var(--mono); color:#647640; }
+.itinerary p { font-size:.8rem; line-height:1.8; color:#505d46; }
+.itinerary ol { list-style:none; padding:0; margin:1.2rem 0; }
+.itinerary li { border-top:1px solid #d2d8c9; padding:1rem 0; display:grid; grid-template-columns:50px 1fr; gap:1rem; }
+.itinerary li b { font:600 .7rem/1.8 var(--mono); color:#727e64; }
+.itinerary li strong { font-size:.88rem; }
+.itinerary li p { margin:.4rem 0 0; }
+.itinerary a { color:#3b5629; }
+.method-note { margin-top:1.3rem; padding:1rem 0; border-top:1px solid #c4caba; font-size:.73rem; line-height:1.9; color:#647058; }
+.map-fallback { padding:2rem; line-height:1.8; }
+@media(min-width:1400px) { .travel-layout{grid-template-columns:370px minmax(0,1fr)} .travel-map{height:460px} }
+@media(max-width:950px) { .game-workbench{grid-template-columns:1fr 1.1fr;gap:1.2rem} .travel-layout{grid-template-columns:285px minmax(0,1fr);gap:1.2rem} .city-results{grid-template-columns:1fr} .city-result{display:grid;grid-template-columns:1fr auto} .city-result small{grid-column:1/-1} .lab-heading>p{max-width:20rem} }
+@media(max-width:700px) { .landing__hero{min-height:calc(100svh - 200px)} .tool-nav{gap:.8rem 1.2rem} .tool-nav a{font-size:.8rem} .tool-nav>span{display:none} .lab{padding:3.5rem 0} .lab-heading{display:block;margin-bottom:1.5rem} .lab-heading>p{max-width:100%;margin-top:1.3rem;font-size:.8rem} .game-workbench,.travel-layout{grid-template-columns:1fr;gap:1.5rem} .game-card{grid-template-columns:26px minmax(0,1fr) auto;gap:.6rem} .game-card h3{font-size:1.12rem} .game-card a{font-size:.7rem} .game-card .card-number{font-size:1.1rem} .travel-map{height:340px} .city-results{grid-template-columns:repeat(3,minmax(0,1fr))} .city-result{display:flex;padding:.8rem .5rem} .city-result strong{font-size:1rem} .itinerary{padding:1.1rem} .field-grid{gap:.7rem} }
+@media(prefers-reduced-motion:reduce) { .lab * { scroll-behavior:auto; transition:none!important; } }

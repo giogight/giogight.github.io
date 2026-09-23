@@ -67,7 +67,7 @@
   let pongLastTime = 0;
   let pongPauseUntil = 0;
   let pongScore = 0;
-  let pongLives = 5;
+  let pongLives = 3;
   let pongWidth = 0;
   let pongHeight = 0;
   let paddle = { x: 0, y: 0, width: 0, height: 12 };
@@ -112,6 +112,10 @@
   }
 
   function drawNoise() {
+    if (!takeover.classList.contains('active') && !reducedMotion) {
+      requestAnimationFrame(drawNoise);
+      return;
+    }
     const width = noiseCanvas.width;
     const height = noiseCanvas.height;
     const image = noiseContext.createImageData(width, height);
@@ -453,7 +457,7 @@
     pongCanvas.width = Math.round(pongWidth * ratio);
     pongCanvas.height = Math.round(pongHeight * ratio);
     pongContext.setTransform(ratio, 0, 0, ratio, 0, 0);
-    paddle.width = pongWidth * (innerWidth <= 520 ? .52 : .44);
+    paddle.width = pongWidth * (innerWidth <= 520 ? .30 : .23);
     paddle.height = Math.max(10, pongHeight * .025);
     paddle.y = pongHeight - paddle.height - 18;
     paddle.x = Math.max(0, Math.min(pongWidth - paddle.width, paddle.x * pongWidth / oldWidth));
@@ -465,7 +469,7 @@
     ball.radius = Math.max(7, Math.min(10, pongWidth * .009));
     ball.x = pongWidth * (.38 + Math.random() * .24);
     ball.y = pongHeight * .22;
-    const speed = 124 + pongScore * 7;
+    const speed = 185 + pongScore * 10;
     ball.vx = speed * (.62 + Math.random() * .22) * (Math.random() > .5 ? 1 : -1);
     ball.vy = speed * direction;
   }
@@ -501,9 +505,9 @@
   function resetPong() {
     stopPong();
     pongScore = 0;
-    pongLives = 5;
+    pongLives = 3;
     pongScoreNode.textContent = '0';
-    pongLivesNode.textContent = '5';
+    pongLivesNode.textContent = '3';
     pongStart.classList.remove('is-hidden');
     pongStartButton.textContent = '启动交互验证';
     pongResult.classList.remove('is-visible');
@@ -566,7 +570,7 @@
       if (hitsPaddle) {
         ball.y = paddle.y - ball.radius;
         const offset = (ball.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2);
-        const speed = Math.min(238, Math.hypot(ball.vx, ball.vy) * 1.035);
+        const speed = Math.min(330, Math.hypot(ball.vx, ball.vy) * 1.065);
         ball.vx = speed * Math.max(-.82, Math.min(.82, offset));
         if (Math.abs(ball.vx) < 62) ball.vx = 62 * (offset >= 0 ? 1 : -1);
         ball.vy = -Math.sqrt(Math.max(90 * 90, speed * speed - ball.vx * ball.vx));
@@ -574,7 +578,7 @@
         pongScoreNode.textContent = String(pongScore);
         tone(460 + pongScore * 55, .055, 'sine', .028);
         burst(false);
-        if (pongScore >= 5) {
+        if (pongScore >= 8) {
           drawPong();
           finishPong();
           return;
@@ -840,7 +844,5 @@
   if (!reducedMotion) requestAnimationFrame(drawNoise);
   else drawNoise();
   requestAnimationFrame(updateTimecode);
-  later(() => {
-    if (!started) startSequence();
-  }, reducedMotion ? 900 : 3400);
+  // The normal homepage tools remain usable until the visitor chooses the archive.
 })();

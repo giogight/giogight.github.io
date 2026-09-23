@@ -8,6 +8,8 @@
   <title>小文 // 个人档案</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2308090b'/%3E%3Cpath d='M14 18h8l10 20 10-20h8L35 49h-6z' fill='%23ef3ec5'/%3E%3Cpath d='M18 13h28' stroke='%2369efff' stroke-width='3'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="tools.css">
 </head>
 <body>
   <main class="landing" id="landing">
@@ -25,7 +27,57 @@
       </div>
       <aside class="hero-meta" aria-label="档案信息"><dl><div><dt>STATUS</dt><dd>ONLINE</dd></div><div><dt>LOCATION</dt><dd>TIANJIN</dd></div><div><dt>AGE</dt><dd>25</dd></div></dl><div class="signal-graph" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></aside>
     </section>
-    <footer class="landing__footer"><span>PHOTOGRAPHY / TRAVEL / GAMING</span><span>WAITING FOR INPUT</span></footer>
+    <nav class="tool-nav" aria-label="主页工具"><a href="#game-lab">01 / 今晚玩什么 ↗</a><a href="#travel-lab">02 / 下一站去哪 ↗</a><span>小文的生活实验室</span></nav>
+    <section class="lab" id="game-lab" aria-labelledby="game-title">
+      <header class="lab-heading"><div><p class="lab-kicker">01 / PLAY TOGETHER</p><h2 id="game-title">别纠结了，<br>今晚玩这个。</h2></div><p>人齐了，游戏还没定？<br>告诉我你们的阵容，把选择困难留在这里。</p></header>
+      <div class="game-workbench">
+        <form id="gameForm" class="lab-panel">
+          <h3>组队条件 <span>YOUR PARTY</span></h3>
+          <div class="field-grid">
+            <label>一起玩的人数<select id="partySize"><option value="2">2 人 · 双人搭子</option><option value="3">3 人</option><option value="4" selected>4 人 · 刚好一队</option><option value="5">5 人</option><option value="6">6 人</option><option value="8">8 人 · 热闹局</option></select></label>
+            <label>大家使用的平台<select id="gamePlatform"><option value="pc">电脑 / PC</option><option value="mobile">手机</option></select></label>
+            <label>今晚能玩多久<select id="gameTime"><option value="20">20 分钟</option><option value="45">45 分钟</option><option value="90" selected>90 分钟</option><option value="180">3 小时</option></select></label>
+            <label>想要的气氛<select id="gameMood"><option value="any">都可以</option><option value="coop">一起合作</option><option value="party">热闹聚会</option><option value="competitive">来点竞技</option><option value="chill">放松慢玩</option></select></label>
+          </div>
+          <div class="check-row"><label><input id="freeOnly" type="checkbox">只看免费入门</label><label><input id="beginnerOnly" type="checkbox">照顾新手搭子</label></div>
+          <button class="lab-button primary" type="submit">匹配今晚的游戏 <span>↗</span></button>
+          <p class="fine-print">所有人按同一平台匹配；不默认支持跨平台联机。时间是建议预留，价格、区服与联机条件请以官方页面为准。</p>
+        </form>
+        <div class="game-output"><div class="result-header"><p id="gameSummary" role="status"></p><button class="text-button" id="randomGame" type="button">帮我抽一个 ↻</button></div><div id="gameResults" class="game-results"></div><button class="text-button" id="copyGame" type="button">复制组队邀请 ↗</button><p class="fine-print" id="gameNotice" role="status"></p></div>
+      </div>
+    </section>
+    <section class="lab travel-lab" id="travel-lab" aria-labelledby="travel-title">
+      <header class="lab-heading"><div><p class="lab-kicker">02 / YOUR NEXT COORDINATES</p><h2 id="travel-title">把喜欢的城市，<br>连成下一次出发。</h2></div><p>收藏城市 → 分析偏好 → 地图选目的地。<br>不用翻几十篇攻略，先找到适合自己的方向。</p></header>
+      <div class="travel-layout">
+        <aside class="lab-panel travel-controls">
+          <h3>我的旅行偏好 <span>WISH LIST</span></h3>
+          <form id="cityForm"><label for="cityInput">加入喜欢的城市</label><div class="input-row"><input id="cityInput" list="cityOptions" placeholder="例如：天津、成都、大理" maxlength="500" autocomplete="off"><button class="lab-button" type="submit">添加</button></div><datalist id="cityOptions"></datalist></form>
+          <div id="cityChips" class="city-chips" aria-label="已收藏的城市"></div>
+          <p class="fine-print" id="cityStats"></p>
+          <details class="import-details"><summary>导入城市名单 / 导出备份</summary><p class="fine-print">支持 UTF-8 的 TXT、CSV、JSON（城市名数组），最多 100KB。Excel 请另存为 CSV。仅在本机分析，不把文件上传到服务器。</p><label class="upload-label">选择城市名单<input type="file" id="cityFile" accept=".txt,.csv,.json,text/plain,text/csv,application/json"></label><textarea id="cityPaste" rows="3" maxlength="10000" placeholder="也可以粘贴：杭州，苏州，成都"></textarea><div class="small-actions"><button type="button" id="importPaste" class="text-button">导入粘贴内容</button><button type="button" id="exportCities" class="text-button">导出收藏</button><button type="button" id="downloadSample" class="text-button">下载模板</button></div></details>
+          <p id="importStatus" class="feedback" role="status"></p>
+          <form id="travelForm">
+            <div class="field-grid"><label>出发月份<select id="travelMonth"></select></label><label>旅行天数<select id="travelDays"><option value="2">2 天</option><option value="3" selected>3 天</option><option value="4">4 天</option><option value="5">5 天</option></select></label></div>
+            <label>每天当地预算 / 每人<select id="travelBudget"><option value="300">约 300 元 · 节制一点</option><option value="500" selected>约 500 元 · 舒适出行</option><option value="800">约 800 元 · 更宽裕</option></select></label>
+            <fieldset class="interest-options"><legend>这次更想体验什么？</legend><label><input type="checkbox" name="interest" value="food">美食</label><label><input type="checkbox" name="interest" value="history">人文古迹</label><label><input type="checkbox" name="interest" value="nature">自然山水</label><label><input type="checkbox" name="interest" value="coast">海边</label><label><input type="checkbox" name="interest" value="city">城市漫游</label></fieldset>
+            <button class="lab-button primary" type="submit">分析我的下一站 <span>↗</span></button>
+          </form>
+          <p class="fine-print">免费偏好评分，未接入 AI 大模型。收藏只保存在当前浏览器；清理浏览数据会丢失，可先导出备份。</p>
+        </aside>
+        <div class="travel-output">
+          <div class="map-topbar"><div><p class="lab-kicker">DESTINATION SIGNALS</p><h3>旅行偏好热力地图</h3></div><button id="resetMap" class="text-button" type="button">全国视野 ↗</button></div>
+          <div id="travelMap" class="travel-map" aria-label="目的地推荐地图，可缩放及点击城市；也可使用下方城市列表"></div>
+          <div class="map-legend"><span><i></i>低匹配 → 高匹配</span><span>圆圈 = 城市评分 · 连线 = 地点顺序示意</span></div>
+          <p id="mapStatus" class="fine-print" role="status">底图由 OpenStreetMap 提供，需要联网；热度为偏好匹配分，不是实时游客数量。</p>
+          <p id="travelSummary" class="travel-summary" role="status"></p>
+          <label class="explore-city">直接查看城市攻略<select id="exploreCity"></select></label>
+          <div id="cityResults" class="city-results" aria-label="推荐城市，点击查看攻略"></div>
+          <article id="itinerary" class="itinerary" aria-live="polite"></article>
+          <details class="method-note"><summary>推荐怎么算？数据与隐私说明</summary><p>匹配分满分 100：兴趣重合最多 45 分、适游月份 20 分（非推荐月份 5 分）、预算覆盖 20 分（不足时按比例）、天数充足 10 分（不足 4 分）、已收藏 5 分。未勾选兴趣时，从收藏城市推算；还没有收藏时使用均衡偏好。</p><p>第一版覆盖 18 座国内城市；地点、月份和预算为编辑整理的入门建议，不是实时数据或 AI 模型输出。预算粗估含当地食宿、交通和部分游览，不含往返大交通。路线连线不是导航，开放情况、天气、预约和票价请出发前核实。地图及外部链接会联系第三方站点，城市名单不会随地图请求发送。</p></details>
+        </div>
+      </div>
+    </section>
+    <footer class="landing__footer"><span>PHOTOGRAPHY / TRAVEL / GAMING</span><span>MADE FOR THE NEXT GOOD DAY</span></footer>
     <div class="landing-tear" aria-hidden="true"></div>
     <div class="prebreach" aria-hidden="true"><div class="prebreach__alert"><i></i><span>连接异常</span><b id="prebreachCode">ERR_CONNECTION_RESET</b></div><div class="prebreach__cursor"></div><div class="prebreach__slice prebreach__slice--a"></div><div class="prebreach__slice prebreach__slice--b"></div></div>
   </main>
@@ -68,7 +120,7 @@
 
     <article class="scene scene--game scene--object" data-scene="6"><div class="object-layout"><div class="object-copy"><p class="scene-code">INTEREST FILE / 03</p><h2>游戏</h2><p>喜欢沉浸在新的规则与世界里。挑战、探索和与朋友并肩作战，是我放松与充电的方式。</p><dl><div><dt>TYPE</dt><dd>INTERACTIVE WORLD</dd></div><div><dt>PLAYER</dt><dd>CONNECTED</dd></div></dl></div><div class="object-stage"><div class="focus-reticle" aria-hidden="true"><i></i><i></i><i></i><i></i></div><img src="assets/cyber-controller.png" alt="无品牌黑色游戏手柄，带有紫色与青色光效"><span class="object-id">PLAYER_03<br>SESSION ACTIVE</span></div></div></article>
 
-    <article class="scene scene--pong" data-scene="7"><div class="pong-gate"><header><div><p class="scene-code">HUMAN INPUT / REQUIRED</p><h2>接球验证</h2></div><div class="pong-stats"><span>拦截 <b id="pongScore">0</b> / 5</span><span>容错 <b id="pongLives">5</b></span></div></header><div class="pong-board" id="pongBoard" tabindex="0" role="application" aria-label="接球小游戏，移动鼠标、手指或方向键控制下方挡板"><canvas id="pongCanvas"></canvas><div class="pong-start" id="pongStart"><p>移动鼠标、手指或方向键控制挡板<br>成功接住 5 次即可继续</p><button id="pongStartButton" type="button">启动交互验证</button></div><div class="pong-result" id="pongResult" aria-live="polite"></div></div><footer><span>难度 / EASY</span><span>超宽挡板 · 5 次容错</span></footer></div></article>
+    <article class="scene scene--pong" data-scene="7"><div class="pong-gate"><header><div><p class="scene-code">HUMAN INPUT / REQUIRED</p><h2>接球验证</h2></div><div class="pong-stats"><span>拦截 <b id="pongScore">0</b> / 8</span><span>容错 <b id="pongLives">3</b></span></div></header><div class="pong-board" id="pongBoard" tabindex="0" role="application" aria-label="接球小游戏，移动鼠标、手指或方向键控制下方挡板"><canvas id="pongCanvas"></canvas><div class="pong-start" id="pongStart"><p>移动鼠标、手指或方向键控制挡板<br>成功接住 8 次即可继续 · 球速逐渐加快</p><button id="pongStartButton" type="button">启动交互验证</button></div><div class="pong-result" id="pongResult" aria-live="polite"></div></div><footer><span>难度 / CHALLENGE</span><span>窄挡板 · 3 次容错</span></footer></div></article>
 
     <article class="scene scene--fracture" data-scene="8"><div class="fracture-card"><p class="scene-code">DATA INTEGRITY FAILURE</p><h2 data-text="档案重组中">档案重组中</h2><div class="packet-row" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p>PACKET RECOVERY · 87%</p></div></article>
 
@@ -80,5 +132,8 @@
     <section class="self-destruct" id="selfDestruct" aria-hidden="true"><div class="destruct-grid" aria-hidden="true"></div><div class="destruct-core"><p>CRITICAL SECURITY FAILURE</p><h2>该设备准备自毁</h2><strong id="destructCount">5</strong><span id="destructReason">验证失败</span><div class="destruct-meter"><i></i></div><small>SIMULATED SEQUENCE / 视觉模拟</small></div><div class="explosion-bloom" aria-hidden="true"></div><div class="explosion-particles" id="explosionParticles" aria-hidden="true"></div><div class="device-safe" id="deviceSafe"><b>SIMULATION COMPLETE</b><span>仅为视觉模拟 · 设备安全</span></div></section>
   </section>
   <script src="app.js"></script>
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="tools-data.js"></script>
+  <script src="home-tools.js"></script>
 </body>
 </html>
