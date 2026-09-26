@@ -128,6 +128,7 @@
       interests:Array.from(document.querySelectorAll('input[name=interest]:checked'),n=>n.value)};
   }
   let map=null,cityLayer=null,routeLayer=null,ranking=[],selectedCity='',tilesReady=false;
+  const cityMarkers=new Map();
   const mapStatus=$('mapStatus');
   function initMap() {
     if(!window.L) {
@@ -145,20 +146,65 @@
     setTimeout(()=>{if(!tilesReady)mapStatus.textContent='底图加载较慢或不可达。可使用下方城市推荐；标记是坐标示意，热度不是实时客流。';},10000);
     if(window.ResizeObserver)new ResizeObserver(()=>map.invalidateSize()).observe($('travelMap'));
   }
-  function heatColor(score) {return score>=75?'#bd592b':score>=60?'#899741':'#487d70';}
+  function heatTier(score) {return score>=75?'high':score>=60?'mid':'low';}
+  function ratingText(spot) {return spot.rating?spot.rating.score.toFixed(1)+' / 5.0':'暂无可核验评分';}
+  function renderDashboard() {
+    const total=ranking.reduce((n,c)=>n+c.spots.length,0);
+    const verified=ranking.reduce((n,c)=>n+c.spots.filter(s=>s.rating).length,0);
+    const dashboard=$('mapDashboard');dashboard.replaceChildren();
+    for(const [number,label,note] of [
+      [ranking.length,'已选城市','仅显示你勾选的目的地'],
+      [total,'地图景点','点城市放大查看'],
+      [total?verified+'/'+total:'0','已核验评分','Trip.com 页面快照']
+    ]) {
+      const card=el('div',undefined,'map-stat');
+      card.append(el('strong',String(number)),el('span',label),el('small',note));dashboard.append(card);
+    }
+  }
   function showOverview() {
-    if(map&&ranking.length)map.fitBounds(L.latLngBounds(ranking.map(c=>[c.lat,c.lng])),{padding:[40,40],maxZoom:ranking.length===1?10:6,animate:false});
+    if(map&&ranking.length){
+      routeLayer.clearLayers();
+      cityMarkers.forEach(marker=>marker.getElement()?.classList.remove('is-drilled'));
+      map.fitBounds(L.latLngBounds(ranking.map(c=>[c.lat,c.lng])),{padding:[55,55],maxZoom:ranking.length===1?9:6,animate:false});
+    }
   }
   function renderMap() {
     if(!map)return;
-    cityLayer.clearLayers();
+    cityLayer.clearLayers();cityMarkers.clear();
     for(const c of ranking) {
-      const color=heatColor(c.score);
-      L.circleMarker([c.lat,c.lng],{radius:16+c.score*.15,fillColor:color,fillOpacity:.16,stroke:false,interactive:false}).addTo(cityLayer);
-      const marker=L.circleMarker([c.lat,c.lng],{radius:6+c.score*.045,color,weight:1.5,fillColor:color,fillOpacity:.7}).addTo(cityLayer);
-      marker.bindTooltip(c.name+' · '+c.score+' 分',{direction:'top'});
+      const icon=el('div',undefined,'heat-city heat-city--'+heatTier(c.score));
+      icon.append(el('span',undefined,'heat-city__halo'));
+      const center=el('span',undefined,'heat-city__center');
+      center.append(el('strong',c.name),el('small',c.score+' / 100'));
+      icon.append(center);
+      const marker=L.marker([c.lat,c.lng],{icon:L.divIcon({html:icon.outerHTML,className:'heat-city-icon',iconSize:[112,112],iconAnchor:[56,56]}),title:c.name+' · 匹配 '+c.score+' 分'}).addTo(cityLayer);
+      marker.bindTooltip(c.name+' · 个人匹配 '+c.score+'/100',{direction:'top',offset:[0,-44]});
       marker.on('click',()=>selectCity(c.name,true));
+      cityMarkers.set(c.name,marker);
     }
+  }
+  function renderSpotCards(city,target) {
+    const section=el('section',undefined,'spot-section');
+    const header=el('div',undefined,'spot-section__head');
+    header.append(el('span','01—03 / ATTRACTION NOTES','lab-kicker'),el('h4','沿着地图，看看这 3 个地点'));
+    section.append(header,el('p','游客分数只取 Trip.com 已核对页面，满分 5.0；未核对的不会估分。路线和提醒不是实时攻略。','fine-print'));
+    const grid=el('div',undefined,'spot-grid');
+    city.spots.forEach((spot,i)=>{
+      const card=el('article',undefined,'spot-card');
+      const top=el('div',undefined,'spot-card__top');
+      const label=el('div');label.append(el('small','STOP '+String(i+1).padStart(2,'0')),el('h5',spot.name));
+      const rating=el('span',spot.rating?'★ '+spot.rating.score.toFixed(1):'—','spot-rating'+(spot.rating?'':' spot-rating--missing'));
+      rating.setAttribute('aria-label',ratingText(spot));
+      top.append(label,rating);card.append(top,el('p',spot.note,'spot-card__tip'));
+      if(spot.reviewNote)card.append(el('p','游客评价观察：'+spot.reviewNote,'spot-card__review'));
+      if(spot.rating){
+        const source=el('div',undefined,'spot-card__source');
+        source.append(el('span','Trip.com · '+spot.rating.reviewCount.toLocaleString('zh-CN')+' 条评价 · '+spot.rating.checkedAt+' 核对'),link('查看原页 ↗',spot.rating.url));
+        card.append(source);
+      } else card.append(el('p','暂无可核验评分 · 建议出发前查看近期游客评价','spot-card__source'));
+      grid.append(card);
+    });
+    section.append(grid);target.append(section);
   }
   function renderCityButtons() {
     $('cityResults').replaceChildren();
@@ -175,6 +221,10 @@
   function selectCity(name,zoom=false) {
     selectedCity=name;
     const c=ranking.find(c=>c.name===name), o=travelOptions();if(!c)return;
+    cityMarkers.forEach((marker,cityName)=>{
+      const icon=marker.getElement();if(icon){icon.classList.toggle('is-selected',cityName===name);icon.classList.toggle('is-drilled',cityName===name&&zoom);}
+      marker.setZIndexOffset(cityName===name?1000:0);
+    });
     $('exploreCity').value=name;
     renderCityButtons();
     const target=$('itinerary');target.replaceChildren();
@@ -184,6 +234,7 @@
     heading.append(title,score);target.append(heading,el('p',c.desc));
     const why='推荐理由：'+(c.matched.length?'贴合 '+c.matched.map(t=>D.tags[t]).join(' / '):'探索不同风格')+'；'+(c.season?'所选月份在建议出行季节内':'所选月份不在本目录优选季节，请额外核实天气')+'。';
     target.append(el('p',why));
+    renderSpotCards(c,target);
     target.append(el('p','你的预算：'+o.budget+' 元 / 人 / 天，'+o.days+' 天共 '+(o.budget*o.days)+' 元。当地开销参考区间 '+c.cost.low+'—'+c.cost.high+' 元 / 人 / 天（'+o.days+' 天约 '+(c.cost.low*o.days)+'—'+(c.cost.high*o.days)+' 元），不含往返大交通。'));
     const breakdown=el('div',undefined,'budget-breakdown');
     for(const [key,label] of Object.entries({stay:'住宿 / 每人分摊',food:'日常餐饮',transport:'市内交通',visits:'游览与门票预留'})) {
@@ -211,13 +262,20 @@
     target.append(actions,note);
     if(map) {
       routeLayer.clearLayers();
-      const spots=c.spots.slice(0,o.days);
-      L.polyline(spots.map(s=>[s.lat,s.lng]),{color:'#304d25',weight:2,dashArray:'5 7'}).addTo(routeLayer);
-      spots.forEach((s,i)=>{
-        L.circleMarker([s.lat,s.lng],{radius:7,color:'#253c1b',fillColor:'#deefae',fillOpacity:1,weight:2})
-          .addTo(routeLayer).bindTooltip('DAY '+(i+1)+' · '+s.name,{permanent:zoom,direction:'top'});
-      });
-      if(zoom) map.fitBounds(L.latLngBounds(spots.map(s=>[s.lat,s.lng])),{padding:[45,50],maxZoom:12,animate:false});
+      if(zoom){
+        const routeSpots=c.spots.slice(0,o.days);
+        if(routeSpots.length>1)L.polyline(routeSpots.map(s=>[s.lat,s.lng]),{color:'#405b3f',weight:2.5,dashArray:'4 8',opacity:.75,interactive:false}).addTo(routeLayer);
+        c.spots.forEach((spot,i)=>{
+          const icon=el('div',undefined,'spot-pin');
+          icon.append(el('span',String(i+1).padStart(2,'0'),'spot-pin__number'),el('span',spot.rating?'★ '+spot.rating.score.toFixed(1):'—','spot-pin__rating'));
+          const marker=L.marker([spot.lat,spot.lng],{icon:L.divIcon({html:icon.outerHTML,className:'spot-pin-icon',iconSize:[75,42],iconAnchor:[16,42]}),title:spot.name+' · '+ratingText(spot)}).addTo(routeLayer);
+          const popup=el('div',undefined,'spot-popup');
+          popup.append(el('strong',spot.name),el('span',ratingText(spot)),el('p',spot.note));
+          if(spot.rating)popup.append(link('Trip.com 评分来源 ↗',spot.rating.url));
+          marker.bindPopup(popup);
+        });
+        map.fitBounds(L.latLngBounds(c.spots.map(s=>[s.lat,s.lng])),{padding:[65,75],maxZoom:12,animate:false});
+      }
     }
   }
   function invalidateTravel() {
@@ -236,6 +294,7 @@
         $('cityResults').replaceChildren();$('exploreCity').replaceChildren();
         $('itinerary').replaceChildren(el('p','还没有选中城市。在“调整地图显示城市”里勾选，地图就会立即更新。'));
         $('travelSummary').textContent='已选 0 座城市 · 地图不显示任何热度标记。';
+        renderDashboard();
         $('travelReady').textContent='当前未选择城市，重新勾选后会立即显示。';
         return true;
       }
@@ -253,10 +312,11 @@
     $('exploreCity').replaceChildren();
     ranking.forEach(c=>{const option=el('option',c.name);option.value=c.name;$('exploreCity').append(option);});
     renderMap();
+    renderDashboard();
     if(map&&!keepCity)showOverview();
     const o=travelOptions();
     $('travelSummary').textContent='仅分析你已选的 '+ranking.length+' 座城市：'+ranking.map(c=>c.name).join('、')+'。'+o.month+' 月 / '+o.days+' 天 · '+o.budget+' 元/人/天。热度代表偏好与预算匹配，不加入其他目的地。';
-    selectCity(keepCity||ranking[0].name,false);
+    selectCity(keepCity||ranking[0].name,ranking.length===1);
     return true;
   }
   $('travelForm').addEventListener('submit',e=>{
