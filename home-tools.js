@@ -127,8 +127,9 @@
       budget:Number($('travelBudget').value),lodging:$('travelLodging').value,peak:$('travelPeak').checked,
       interests:Array.from(document.querySelectorAll('input[name=interest]:checked'),n=>n.value)};
   }
-  let map=null,cityLayer=null,routeLayer=null,ranking=[],selectedCity='',tilesReady=false;
+  let map=null,cityLayer=null,routeLayer=null,discoveryLayer=null,ranking=[],selectedCity='',tilesReady=false;
   const cityMarkers=new Map();
+  const discoveryMarkers=new Map();
   const mapStatus=$('mapStatus');
   function initMap() {
     if(!window.L) {
@@ -137,7 +138,7 @@
       $('resetMap').disabled=true;return;
     }
     map=L.map('travelMap',{scrollWheelZoom:false}).setView([32.8,110.5],4);
-    cityLayer=L.layerGroup().addTo(map);routeLayer=L.layerGroup().addTo(map);
+    cityLayer=L.layerGroup().addTo(map);routeLayer=L.layerGroup().addTo(map);discoveryLayer=L.layerGroup().addTo(map);
     const tiles=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
       maxZoom:18,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
     }).addTo(map);
@@ -149,12 +150,12 @@
   function heatTier(score) {return score>=75?'high':score>=60?'mid':'low';}
   function ratingText(spot) {return spot.rating?spot.rating.score.toFixed(1)+' / 5.0':'暂无可核验评分';}
   function renderDashboard() {
-    const total=ranking.reduce((n,c)=>n+c.spots.length,0);
-    const verified=ranking.reduce((n,c)=>n+c.spots.filter(s=>s.rating).length,0);
+    const total=ranking.reduce((n,c)=>n+c.spots.length+c.discoveries.length,0);
+    const verified=ranking.reduce((n,c)=>n+c.spots.filter(s=>s.rating).length+c.discoveries.length,0);
     const dashboard=$('mapDashboard');dashboard.replaceChildren();
     for(const [number,label,note] of [
       [ranking.length,'已选城市','仅显示你勾选的目的地'],
-      [total,'地图景点','点城市放大查看'],
+      [total,'地点卡片','行程点 + 高分发现'],
       [total?verified+'/'+total:'0','已核验评分','Trip.com 页面快照']
     ]) {
       const card=el('div',undefined,'map-stat');
@@ -164,6 +165,7 @@
   function showOverview() {
     if(map&&ranking.length){
       routeLayer.clearLayers();
+      discoveryLayer.clearLayers();discoveryMarkers.clear();
       cityMarkers.forEach(marker=>marker.getElement()?.classList.remove('is-drilled'));
       map.fitBounds(L.latLngBounds(ranking.map(c=>[c.lat,c.lng])),{padding:[55,55],maxZoom:ranking.length===1?9:6,animate:false});
     }
@@ -205,6 +207,47 @@
       grid.append(card);
     });
     section.append(grid);target.append(section);
+  }
+  function showDiscoveryOnMap(city,item) {
+    if(!map)return;
+    if(!discoveryMarkers.has(item.name))selectCity(city.name,true);
+    map.setView([item.lat,item.lng],14,{animate:false});
+    discoveryMarkers.get(item.name)?.openPopup();
+    $('travelMap').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'center'});
+  }
+  function renderDiscoveryCards(city,target) {
+    const section=el('section',undefined,'discovery-section');
+    const head=el('div',undefined,'discovery-head');
+    head.append(el('span','LOCAL FINDS / NOT ON YOUR ROUTE','lab-kicker'),el('h4','网友高分发现 · 吃一口，再逛一处'));
+    section.append(head,el('p','每座城市补充 1 处吃喝、1 处可逛地点；本批均为 Trip.com 评分 ≥ 4.6/5.0、至少 80 条评价的页面快照。它们是备选，不自动塞进每日行程；高分不等于便宜或不排队。','fine-print'));
+    const grid=el('div',undefined,'discovery-grid');
+    for(const item of city.discoveries) {
+      const card=el('article',undefined,'discovery-card discovery-card--'+item.kind);
+      const tag=el('span',item.kind==='food'?'吃点什么':'值得逛逛','discovery-tag');
+      const top=el('div',undefined,'discovery-card__top');
+      top.append(tag,el('strong','★ '+item.score.toFixed(1)+' / 5.0','discovery-score'));
+      card.append(top,el('h5',item.name),el('p',item.area+' · '+item.note,'discovery-card__note'));
+      card.append(el('p','Trip.com · '+item.reviewCount.toLocaleString('zh-CN')+' 条评价 · '+item.checkedAt+' 核对','discovery-card__source'));
+      const actions=el('div',undefined,'discovery-card__actions');
+      actions.append(link('看评价原页 ↗',item.url));
+      if(map){
+        const locate=el('button','地图定位 ◎','text-button');locate.type='button';
+        locate.addEventListener('click',()=>showDiscoveryOnMap(city,item));actions.append(locate);
+      }
+      card.append(actions);grid.append(card);
+    }
+    section.append(grid);target.append(section);
+  }
+  function renderDiscoveryMarkers(city) {
+    if(!map)return;
+    discoveryLayer.clearLayers();discoveryMarkers.clear();
+    for(const item of city.discoveries) {
+      const icon=el('div',item.kind==='food'?'吃':'逛','discovery-pin discovery-pin--'+item.kind);
+      const marker=L.marker([item.lat,item.lng],{icon:L.divIcon({html:icon.outerHTML,className:'discovery-pin-icon',iconSize:[34,42],iconAnchor:[17,42]}),title:item.name+' · '+item.score.toFixed(1)+'/5.0'}).addTo(discoveryLayer);
+      const popup=el('div',undefined,'spot-popup');
+      popup.append(el('strong',item.name),el('span','★ '+item.score.toFixed(1)+'/5.0 · '+item.reviewCount.toLocaleString('zh-CN')+' 条评价'),el('p',item.area+' · '+item.note),link('Trip.com 原页 ↗',item.url));
+      marker.bindPopup(popup);discoveryMarkers.set(item.name,marker);
+    }
   }
   function renderCityButtons() {
     $('cityResults').replaceChildren();
@@ -252,6 +295,7 @@
       item.append(el('b','DAY '+String(i+1).padStart(2,'0')),body);list.append(item);
     }
     target.append(list,el('p','这是按地区整理的入门行程，不含已预订服务；同日衔接、实际车程和门票请出发前再核实。'));
+    renderDiscoveryCards(c,target);
     const actions=el('div',undefined,'small-actions'),save=el('button',favorites.includes(c.name)?'已收藏 ✓':'收藏这座城市 +','text-button');
     save.type='button';save.disabled=favorites.includes(c.name);
     save.addEventListener('click',()=>{favorites.push(c.name);citiesChanged();});
@@ -262,6 +306,7 @@
     target.append(actions,note);
     if(map) {
       routeLayer.clearLayers();
+      discoveryLayer.clearLayers();discoveryMarkers.clear();
       if(zoom){
         const routeSpots=c.spots.slice(0,o.days);
         if(routeSpots.length>1)L.polyline(routeSpots.map(s=>[s.lat,s.lng]),{color:'#405b3f',weight:2.5,dashArray:'4 8',opacity:.75,interactive:false}).addTo(routeLayer);
@@ -274,6 +319,7 @@
           if(spot.rating)popup.append(link('Trip.com 评分来源 ↗',spot.rating.url));
           marker.bindPopup(popup);
         });
+        renderDiscoveryMarkers(c);
         map.fitBounds(L.latLngBounds(c.spots.map(s=>[s.lat,s.lng])),{padding:[65,75],maxZoom:12,animate:false});
       }
     }
@@ -291,6 +337,7 @@
       if(mapInitialized&&!$('travelOutput').hidden){
         if(cityLayer)cityLayer.clearLayers();
         if(routeLayer)routeLayer.clearLayers();
+        if(discoveryLayer)discoveryLayer.clearLayers();discoveryMarkers.clear();
         $('cityResults').replaceChildren();$('exploreCity').replaceChildren();
         $('itinerary').replaceChildren(el('p','还没有选中城市。在“调整地图显示城市”里勾选，地图就会立即更新。'));
         $('travelSummary').textContent='已选 0 座城市 · 地图不显示任何热度标记。';

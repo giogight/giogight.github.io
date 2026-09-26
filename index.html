@@ -72,14 +72,14 @@
           <div class="map-topbar"><div><p class="lab-kicker">YOUR SELECTED CITIES / FIELD NOTES</p><h3>旅行偏好热力地图</h3><p class="map-intro">先看你选的城市，再点亮景点。热度是个人匹配度；景点口碑单独按 5.0 分展示。</p></div><button id="resetMap" class="text-button" type="button">查看已选城市 ↗</button></div>
           <details class="map-city-picker"><summary>调整地图显示城市 · 勾选即更新</summary><fieldset id="mapCityChoices"><legend>只显示勾选的城市，取消即从地图移除</legend></fieldset></details>
           <div id="travelMap" class="travel-map" aria-label="目的地推荐地图，可缩放及点击城市；也可使用下方城市列表"></div>
-          <div class="map-legend"><span><i></i>低匹配 → 高匹配</span><span>城市数字 = 匹配分 / 100 · 景点数字 = Trip.com / 5.0</span></div>
+          <div class="map-legend"><span><i></i>低匹配 → 高匹配</span><span>城市 = 匹配分 / 100 · 数字 = 景点评分 / 5.0 · 吃 / 逛 = 高分发现</span></div>
           <p id="mapStatus" class="fine-print" role="status">底图由 OpenStreetMap 提供，需要联网；热度为偏好匹配分，不是实时游客数量。</p>
           <div id="mapDashboard" class="map-dashboard" aria-label="当前地图概览"></div>
           <p id="travelSummary" class="travel-summary" role="status"></p>
           <label class="explore-city">查看已选城市攻略<select id="exploreCity"></select></label>
           <div id="cityResults" class="city-results" aria-label="推荐城市，点击查看攻略"></div>
           <article id="itinerary" class="itinerary" aria-live="polite"></article>
-          <details class="method-note"><summary>推荐怎么算？评分来源与隐私说明</summary><p>匹配分满分 100：兴趣重合最多 45 分、适游月份 20 分（非推荐月份 5 分）、预算覆盖 20 分（对照住宿安排调整后的参考中值，不足时按比例）、天数充足 10 分（不足 4 分）、已收藏 5 分。未勾选兴趣时，从收藏城市推算；未选择城市时不会生成地图或结果。</p><p>景点游客评分是 2026-09-26 核对的 Trip.com 景点页面聚合评分，满分 5.0，附评论数量和原页链接；不是“全互联网平均分”，不代表实时评分或实际客流。仅同名且范围明确的景点录入，无法核对的标为“暂无可核验评分”。平台评论可能包含相关产品体验，读原页时请自行辨别。游客评价观察只摘录少量公开评价的共同出行提醒，不代表所有人的看法；其他路线提示是编辑建议。</p><p>仅对已添加或导入的城市分析，目前支持 18 座国内城市；地点、月份和预算为编辑整理的入门建议，不是实时数据或 AI 模型输出。预算参考中值按住宿 48%、餐饮 26%、市内交通 12%、游览 14% 拆分；餐饮至少预留 40 元、市内交通至少 20 元，各项取整。两人分摊住宿按独住预留的 65% 估算，无需住宿为 0；旺季选项只对住宿增加 40% 规划缓冲。参考区间为中值的 75%—135%，不是实际市场价格区间。均不含往返大交通。路线连线不是导航，开放情况、天气、预约和票价请出发前核实。地图及外部链接会联系第三方站点，城市名单不会随地图请求发送。</p></details>
+          <details class="method-note"><summary>推荐怎么算？评分来源与隐私说明</summary><p>匹配分满分 100：兴趣重合最多 45 分、适游月份 20 分（非推荐月份 5 分）、预算覆盖 20 分（对照住宿安排调整后的参考中值，不足时按比例）、天数充足 10 分（不足 4 分）、已收藏 5 分。未勾选兴趣时，从收藏城市推算；未选择城市时不会生成地图或结果。</p><p>景点游客评分与“网友高分发现”均为 2026-09-26 核对的 Trip.com 页面聚合评分，满分 5.0，附评论数量和原页链接；不是“全互联网平均分”，不代表实时评分或实际客流。高分发现按评分不低于 4.6 且评价数不少于 80 条筛选，每城 1 处吃喝、1 处可逛地点；这不是全城最佳榜单。餐馆评分可能包含不同口味和服务体验，评分与评论数量会变化，部分页面也可能含相关产品评价。开放、营业、预约、价格、实际地址和近期评价请出发前在原页或官方渠道复核。地图中的高分发现坐标由来源页面转换到 OpenStreetMap 坐标系，仅作位置示意，不可代替导航。未能核对的原行程景点标为“暂无可核验评分”。游客评价观察只摘录少量公开评价的出行提醒，不代表所有人的看法；其他路线提示是编辑建议。</p><p>仅对已添加或导入的城市分析，目前支持 18 座国内城市；地点、月份和预算为编辑整理的入门建议，不是实时数据或 AI 模型输出。预算参考中值按住宿 48%、餐饮 26%、市内交通 12%、游览 14% 拆分；餐饮至少预留 40 元、市内交通至少 20 元，各项取整。两人分摊住宿按独住预留的 65% 估算，无需住宿为 0；旺季选项只对住宿增加 40% 规划缓冲。参考区间为中值的 75%—135%，不是实际市场价格区间。均不含往返大交通。路线连线不是导航。地图及外部链接会联系第三方站点，城市名单不会随地图请求发送。</p></details>
         </div>
       </div>
     </section>

@@ -59,6 +59,67 @@
     '成都/成都大熊猫繁育研究基地':'有游客喜欢近距离看熊猫，也提到热门区域拥挤；早点出发更稳妥。',
     '大理/大理古城':'有游客提到古城街巷和苍山景观；步行游览可留出更多时间。'
   };
+  // One food stop and one optional place to explore per city. Each linked
+  // Trip.com detail page showed >=4.6/5 and >=80 reviews on 2026-09-26.
+  // Coordinates from those pages are GCJ-02; convert for the OSM/WGS84 map.
+  const discoveryRows = [
+    ['天津','food','南楼煎饼（南楼总店）',4.6,396,39.0933705,117.2206412,'/restaurant/china/tianjin/detail/nanlou-jianbing-222665/','围堤道 / 隆昌路','早餐小吃；到店前核对营业时段和排队情况。'],
+    ['天津','walk','意式风情区',4.7,5039,39.135704,117.199933,'/travel-guide/attraction/tianjin/tianjin-italian-style-town-91831','河北区','建筑街区适合慢逛，不必当成整日行程。'],
+    ['北京','food','磁器口老豆汁店（天坛店）',4.8,353,39.88876,116.4128138,'/restaurant/china/beijing/detail/ciqikou-old-bean-juice-shop-10562189/','天坛附近','传统口味因人而异，可以先少量尝试。'],
+    ['北京','walk','雍和宫',4.7,4280,39.947165,116.417295,'/travel-guide/attraction/beijing/lama-temple-76599','东城区','可搭配周边街巷；入内规则和预约请先核实。'],
+    ['上海','food','南翔馒头店（豫园店）',4.6,2597,31.2266265,121.4914483,'/restaurant/china/shanghai/detail/nanxiang-steamed-bun-restaurant-10561310/','豫园附近','小笼点心可作一餐，热门时段留出等候时间。'],
+    ['上海','walk','上海博物馆',4.6,10133,31.22829,121.47558,'/travel-guide/attraction/shanghai/shanghai-museum-76144','人民广场附近','先核对馆区、展览和预约，再安排周边步行。'],
+    ['杭州','food','老头儿油爆虾（武林店）',4.7,535,30.2677687,120.1608217,'/restaurant/china/hangzhou/detail/lao-tou-er-you-bao-xia-11297448/','武林广场附近','杭帮菜备选，点菜前先看菜单和人均。'],
+    ['杭州','walk','西溪湿地',4.6,29148,30.267233,120.064922,'/travel-guide/attraction/hangzhou/xixi-national-wetland-park-81715','西湖区','范围较大，选一个入口慢游；船票另行核对。'],
+    ['苏州','food','裕兴记面馆（演艺中心店）',4.7,158,31.3091684,120.6060745,'/restaurant/china/suzhou/detail/yu-xing-ji-noodle-house-15290474/','石路附近','面馆适合作为短暂停靠，先确认本店营业。'],
+    ['苏州','walk','苏州博物馆',4.8,5090,31.323065,120.627743,'/travel-guide/attraction/suzhou/suzhou-museum-82121','拙政园附近','先看预约；可与园林同区安排，不必赶场。'],
+    ['南京','food','小李汤包（殷高巷店）',4.7,200,32.0176903,118.7770381,'/restaurant/china/nanjing/detail/restaurant-11238292/','殷高巷','汤包适合小吃停靠，现做食物留意烫口。'],
+    ['南京','walk','栖霞山',4.7,6885,32.155461,118.967746,'/travel-guide/attraction/nanjing/qixia-mountain-scenic-area-75709','栖霞区','离市中心较远，建议单独预留半天以上。'],
+    ['成都','food','叶婆婆（太古里店）',5.0,490,30.6509741,104.0843241,'/restaurant/china/chengdu/detail/ye-po-po-56563314/','太古里附近','川味小吃备选，排队太久可保留其他选择。'],
+    ['成都','walk','文殊院',4.8,2046,30.6754,104.07265,'/travel-guide/attraction/chengdu/wenshu-monastery-76379','青羊区','适合与周边街巷慢走，尊重寺院现场规则。'],
+    ['重庆','food','纯阳老酒馆（七星岗店）',4.7,202,29.5546949,106.5613369,'/restaurant/china/chongqing/detail/restaurant-11566074/','七星岗','川菜口味可先问辣度，别把晚餐排得太赶。'],
+    ['重庆','walk','磁器口古镇',4.6,14432,29.580604,106.450203,'/travel-guide/attraction/chongqing/ciqikou-town-82093','沙坪坝区','热门街区可错开高峰，留时间走走支巷。'],
+    ['西安','food','马家老六水盆牛羊肉',4.8,130,34.2688691,108.9430714,'/restaurant/china/xi-an/detail/ma-jia-lao-liu-shui-pen-niu-yang-rou-yang-za-gao-227322/','北大街附近','牛羊肉小吃，先确认营业和个人口味。'],
+    ['西安','walk','西安博物院',4.6,3353,34.238545,108.941644,'/travel-guide/attraction/xi-an/xi-an-museum-10532757','碑林区','可与小雁塔一带慢游；入馆规则先核对。'],
+    ['青岛','food','永红园啤酒烧烤海鲜大排档（台柳路店）',5.0,138,36.1365712,120.4118297,'/restaurant/china/qingdao/detail/yong-hong-yuan-beer-barbecue-seafood-and-food-stall-15277529/','台柳路','海鲜按当日标价点单，先确认份量与价格。'],
+    ['青岛','walk','青岛啤酒博物馆',4.8,47518,36.079355,120.347241,'/travel-guide/attraction/qingdao/tsingtao-beer-museum-10559061','市北区','室内参观备选，门票与入场时段先核对。'],
+    ['厦门','food','好食来大排档',5.0,87,24.4668405,118.0853228,'/restaurant/china/xiamen/detail/hao-shi-lai-food-stall-11308138/','湖滨南路','大排档先看菜单与海鲜计价方式。'],
+    ['厦门','walk','集美学村',4.7,891,24.566515,118.092797,'/travel-guide/attraction/xiamen/the-jimei-school-village-75842','集美区','建筑漫步注意校园开放边界，不打扰教学。'],
+    ['大理','food','风花小院',5.0,4807,25.6953789,100.1674619,'/restaurant/china/dali-city/detail/feng-hua-xiao-yuan-31198403/','大理古城人民路','古城内用餐备选，先核对菜单和等候情况。'],
+    ['大理','walk','双廊古镇',4.6,3099,25.909591,100.19349,'/travel-guide/attraction/dali-city/shuanglang-ancient-town-10532874','洱海东北侧','离大理古城较远，往返交通单独预留。'],
+    ['桂林','food','大师傅啤酒鱼（阳朔西街店）',4.7,1291,24.7737208,110.4942401,'/restaurant/china/yangshuo/detail/da-shi-fu-beer-fish-10560924/','阳朔西街','点鱼前确认品种、计价和份量。'],
+    ['桂林','walk','独秀峰王城景区',4.9,24840,25.28165,110.299196,'/travel-guide/attraction/guilin/solitary-beauty-peak-prince-city-scenic-area-90680','桂林市区','人文景点备选，票务和登高路线先核对。'],
+    ['昆明','food','小吉坡8号（文林街店）',4.6,123,25.0517043,102.7021638,'/restaurant/china/kunming/detail/xiao-ji-po-8th-11356895/','文林街','适合街区散步时顺路停靠，先确认营业。'],
+    ['昆明','walk','昆明老街',4.7,477,25.039975,102.709499,'/travel-guide/attraction/kunming/kunming-old-street-56776277','市中心','街区可傍晚慢逛，消费前先看价目。'],
+    ['长沙','food','黑色经典臭豆腐（潇湘文化店）',4.6,1056,28.1903679,112.975908,'/restaurant/china/changsha/detail/black-classic-stinky-tofu-and-hunan-specialty-10562067/','黄兴路步行街','步行街小吃，现炸现吃注意烫口。'],
+    ['长沙','walk','杜甫江阁',4.6,10587,28.184703,112.968613,'/travel-guide/attraction/changsha/du-fu-pavilion-13562479','湘江东岸','适合傍晚江边慢走，登阁开放另核对。'],
+    ['广州','food','炳胜公馆',4.7,382,23.1148757,113.3283287,'/restaurant/china/guangzhou/detail/bingsheng-mansion-11479578/','珠江新城','粤菜餐馆可能超出经济预算，先看菜单。'],
+    ['广州','walk','广东省博物馆',4.7,2071,23.114747,113.326436,'/travel-guide/attraction/guangzhou/guangdong-museum-76884','珠江新城','看展前核对预约与馆内展览，可搭配周边散步。'],
+    ['三亚','food','林姐海鲜',4.6,3680,18.2373516,109.5085057,'/restaurant/china/sanya/detail/mslin-s-seafood-176948/','新民街','海鲜先核对品种、重量和当日标价。'],
+    ['三亚','walk','西岛',4.6,18538,18.240053,109.373546,'/travel-guide/attraction/sanya/west-island-10558942','三亚西侧海域','上岛前核对天气、船班和返程时间。'],
+    ['哈尔滨','food','老味烧烤（总店）',4.8,108,45.7611098,126.6164473,'/restaurant/china/harbin/detail/lao-wei-barbecue-311766/','安达街','烧烤备选，晚间用餐记得留返程时间。'],
+    ['哈尔滨','walk','中华巴洛克历史文化街区',4.8,325,45.781834,126.640789,'/travel-guide/attraction/harbin/chinese-baroque-31660312','道外区','老街区慢走，冬季留意防滑与保暖。']
+  ];
+  function gcjToWgs(lat,lng) {
+    const pi=Math.PI, a=6378245, ee=.006693421622965943;
+    const x=lng-105,y=lat-35;
+    let dLat=-100+2*x+3*y+.2*y*y+.1*x*y+.2*Math.sqrt(Math.abs(x));
+    dLat+=(20*Math.sin(6*x*pi)+20*Math.sin(2*x*pi))*2/3;
+    dLat+=(20*Math.sin(y*pi)+40*Math.sin(y/3*pi))*2/3;
+    dLat+=(160*Math.sin(y/12*pi)+320*Math.sin(y*pi/30))*2/3;
+    let dLng=300+x+2*y+.1*x*x+.1*x*y+.1*Math.sqrt(Math.abs(x));
+    dLng+=(20*Math.sin(6*x*pi)+20*Math.sin(2*x*pi))*2/3;
+    dLng+=(20*Math.sin(x*pi)+40*Math.sin(x/3*pi))*2/3;
+    dLng+=(150*Math.sin(x/12*pi)+300*Math.sin(x/30*pi))*2/3;
+    const radLat=lat/180*pi, magic=1-ee*Math.sin(radLat)**2, sqrtMagic=Math.sqrt(magic);
+    dLat=dLat*180/((a*(1-ee))/(magic*sqrtMagic)*pi);
+    dLng=dLng*180/(a/sqrtMagic*Math.cos(radLat)*pi);
+    return {lat:lat-dLat,lng:lng-dLng};
+  }
+  const discoveries=discoveryRows.map(([city,kind,name,score,reviewCount,gcjLat,gcjLng,path,area,note])=>({
+    city,kind,name,score,reviewCount,...gcjToWgs(gcjLat,gcjLng),area,note,
+    source:'Trip.com',checkedAt:'2026-09-26',url:'https://www.trip.com'+path
+  }));
   // time: recommended minimum time reserved, not an official round duration.
   const games = [
     {name:'双人成行',min:2,max:2,platforms:['ps','switch'],time:90,moods:['coop'],free:[],easy:false,url:'https://www.ea.com/games/it-takes-two',desc:'两个人分工合作的冒险，可同屏，也可在线相约。',note:'PS4 / PS5、Switch 对应版本；需一人拥有完整版。线上模式请核对好友通行证、会员及版本兼容要求。'},
@@ -101,6 +162,7 @@
   const cities = raw.map(([name,region,lat,lng,types,months,budget,days,desc,spots]) => ({
     name,region,lat,lng,tags:types.filter(t=>tags[t]),months,budget,days,desc,
     spots:spots.map(([spot,lat,lng,note])=>({name:spot,lat,lng,note,rating:spotRatings.get(name+'/'+spot)||null,reviewNote:reviewNotes[name+'/'+spot]||''})),
+    discoveries:discoveries.filter(item=>item.city===name),
     source:'https://www.bing.com/search?q='+encodeURIComponent(name+' 旅游 官方 景点预约 攻略')
   }));
   function matchGames(options) {
@@ -155,7 +217,7 @@
       return {...c,cost,score,season,affordable,enough,matched:c.tags.filter(t=>weights[t]>0)};
     }).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'zh-CN'));
   }
-  const api={tags,moods,games,cities,matchGames,parseCities,rankCities,estimateBudget};
+  const api={tags,moods,games,cities,discoveries,matchGames,parseCities,rankCities,estimateBudget};
   if(typeof module!=='undefined'&&module.exports) module.exports=api;
   else root.XWTools=api;
 })(typeof window!=='undefined'?window:{});
