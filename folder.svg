@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 350" fill="none">
+  <defs>
+    <linearGradient id="back" x1="100" y1="62" x2="319" y2="278" gradientUnits="userSpaceOnUse"><stop stop-color="#D7C5F5"/><stop offset=".5" stop-color="#B59CDB"/><stop offset="1" stop-color="#8769B5"/></linearGradient>
+    <linearGradient id="front" x1="86" y1="135" x2="291" y2="310" gradientUnits="userSpaceOnUse"><stop stop-color="#E6D8FC"/><stop offset=".36" stop-color="#C4A9EB"/><stop offset="1" stop-color="#9472C2"/></linearGradient>
+    <linearGradient id="paper" x1="146" y1="90" x2="295" y2="232" gradientUnits="userSpaceOnUse"><stop stop-color="#FFFDFF"/><stop offset="1" stop-color="#E4DCEF"/></linearGradient>
+    <linearGradient id="rim" x1="103" y1="138" x2="271" y2="299" gradientUnits="userSpaceOnUse"><stop stop-color="white" stop-opacity=".8"/><stop offset="1" stop-color="white" stop-opacity=".1"/></linearGradient>
+    <filter id="shadow" x="0" y="0" width="400" height="350" filterUnits="userSpaceOnUse"><feDropShadow dx="5" dy="13" stdDeviation="11" flood-color="#755399" flood-opacity=".2"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <path d="M67 111V82Q67 64 85 64H143Q154 64 161 73L178 94H311Q334 94 334 117V266Q334 287 311 287H86Q67 287 67 265Z" fill="url(#back)" stroke="#F3E9FF" stroke-opacity=".7" stroke-width="1.5"/>
+    <path d="M103 113Q103 104 113 104H295Q304 104 304 113V246H103Z" fill="#DDD1EF" transform="rotate(4 204 175)"/>
+    <rect x="105" y="108" width="198" height="149" rx="10" fill="url(#paper)" transform="rotate(-4 204 183)"/>
+    <path d="M128 126H211M128 139H264" stroke="#D7CBE7" stroke-width="4" stroke-linecap="round"/>
+    <path d="M51 157Q48 137 68 137H157Q171 137 178 148L183 156H326Q345 156 342 176L326 285Q323 305 302 305H84Q63 305 61 284Z" fill="url(#front)" stroke="url(#rim)" stroke-width="1.8"/>
+    <path d="M69 149H151Q160 149 165 155" stroke="white" stroke-opacity=".55" stroke-width="3" stroke-linecap="round"/>
+    <path d="M71 281Q73 294 87 294H299" stroke="#7955A5" stroke-opacity=".14" stroke-width="3" stroke-linecap="round"/>
+    <text x="201" y="252" text-anchor="middle" font-family="Microsoft YaHei,system-ui,sans-serif" font-size="69" font-weight="600" fill="#FFF9FF" fill-opacity=".62">观</text>
+  </g>
+</svg>

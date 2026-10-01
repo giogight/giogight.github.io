@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+ <defs><linearGradient id="wcGlass" x1="5" y1="4" x2="27" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#f0e8fc" stop-opacity=".9"/><stop offset="1" stop-color="#bba0df" stop-opacity=".52"/></linearGradient></defs>
+ <g stroke="#8a67b7" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="4.5" y="3.5" width="23" height="25" rx="5.5" fill="url(#wcGlass)"/>
+  <path d="M10.5 28V16.5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2V28"/>
+  <path d="m8 7.5 1.5 4 1.5-3 1.5 3 1.5-4M22.5 8.2a3 3 0 0 0-2.2-.8 2.4 2.4 0 1 0 0 4.8c.9 0 1.6-.2 2.2-.8" stroke-width="1.45"/>
+ </g>
+ <circle cx="18.7" cy="21" r=".9" fill="#8a67b7"/>
+ <path d="M7.3 17V9.3a3 3 0 0 1 3-3" stroke="#fff" stroke-opacity=".75" stroke-width="1.1" stroke-linecap="round"/>
+</svg>

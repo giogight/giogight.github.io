@@ -1,0 +1,16 @@
+body{isolation:isolate}
+.ambient-background{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;contain:strict;background:radial-gradient(ellipse at 69% 8%,#eae3fa45,transparent 48%),var(--bg)}
+.ambient-background::before{content:'';position:absolute;inset:-4%;background:url('ambient.svg') center/cover no-repeat;opacity:.9;animation:ambient-flow 24s ease-in-out infinite alternate;transform-origin:85% 30%;will-change:transform}
+.ambient-background::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 21% 36%,var(--bg) 0%,transparent 66%);opacity:.54}
+.ambient-background>svg{position:absolute;inset:-4%;width:108%;height:108%;opacity:.88;pointer-events:none;animation:ambient-flow 24s ease-in-out infinite alternate;transform-origin:85% 30%;will-change:transform}
+.ambient-background.has-live-ribbons::before{display:none;animation:none;will-change:auto}
+.ambient-background.ambient-paused>svg,.ambient-background.ambient-paused::before{animation-play-state:paused}
+.topbar{background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:none;-webkit-backdrop-filter:none}
+.task-island{backdrop-filter:none}.frame-page iframe{background:transparent}.tide-art::before{background:#c2b6e715}.art-orbit{border-color:#baaddf48}.home-footer{border-color:color-mix(in srgb,var(--line) 70%,transparent)}
+:root[data-theme=night] .ambient-background{background:radial-gradient(ellipse at 95% 10%,#54405f26,transparent 46%),var(--bg)}
+:root[data-theme=night] .ambient-background::before{opacity:.34}:root[data-theme=night] .ambient-background>svg{opacity:.42}:root[data-theme=night] .ambient-background::after{opacity:.8}
+.overview{min-height:calc(100dvh - 83px)}
+@keyframes ambient-flow{0%{transform:translate3d(1.5%,0,0) rotate(-1.5deg) scale(1.015)}50%{transform:translate3d(-1.5%,-1%,0) rotate(.5deg) scale(1.04)}100%{transform:translate3d(0,1.5%,0) rotate(1.5deg) scale(1.015)}}
+:root[data-gc-motion=light] .ambient-background>svg,:root[data-gc-motion=light] .ambient-background::before{animation-duration:34s}
+@media(max-width:800px){.ambient-background>svg{opacity:.57}.ambient-soft-glow{display:none}.ambient-background::before{background-position:67% center;background-size:auto 115%;opacity:.8;animation-duration:34s}.ambient-background::after{background:radial-gradient(ellipse at 14% 25%,var(--bg) 0%,transparent 70%);opacity:.76}.overview{min-height:calc(100dvh - 138px)}:root[data-theme=night] .ambient-background::before{opacity:.28}:root[data-theme=night] .ambient-background>svg{opacity:.32}}
+@media(prefers-reduced-motion:reduce){.ambient-background>svg,.ambient-background::before{animation:none;will-change:auto}}

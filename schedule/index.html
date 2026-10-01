@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="day">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark"><title>安排了么 · 观潮</title>
+  <link rel="stylesheet" href="schedule.css"><script src="schedule.js" defer></script>
+</head>
+<body>
+  <main class="schedule-shell">
+    <header class="schedule-header"><div><p class="eyebrow">MAKE ROOM FOR YOUR DAY</p><h1>安排了么<span aria-hidden="true">.</span></h1><p class="intro">给今天一点秩序，也留一点空白。</p></div><button type="button" class="today-button" id="todayButton">回到今天 <span aria-hidden="true">↗</span></button></header>
+    <section class="date-bar" aria-label="选择日程日期"><button type="button" id="previousDay" class="date-arrow" aria-label="前一天">‹</button><div class="date-detail"><label for="scheduleDate" id="dateHeadline">今天</label><input type="date" id="scheduleDate" min="1900-01-01" max="2199-12-31" required aria-label="日程日期"><p id="dateWeekday"></p></div><button type="button" id="nextDay" class="date-arrow" aria-label="后一天">›</button><div class="day-summary"><p><b id="doneCount">0 / 0</b><span>已完成</span></p><p><b id="remainingMinutes">0 <small>分钟</small></b><span>待办时长</span></p></div></section>
+    <p class="status-message" id="scheduleStatus" role="status" aria-live="polite"></p>
+    <div class="periods" id="periods">
+      <details open class="period-card" data-period="anytime" aria-labelledby="anytimeTitle"><summary><div class="period-heading"><span class="period-icon" aria-hidden="true">✦</span><div><h2 id="anytimeTitle">随时</h2><p>留给灵活安排的事</p></div></div><button type="button" class="add-task" data-add="anytime" aria-label="添加随时任务">＋</button></summary><ul id="anytimeTasks" class="task-list"></ul></details>
+      <details open class="period-card" data-period="morning" aria-labelledby="morningTitle"><summary><div class="period-heading"><span class="period-icon" aria-hidden="true">☀</span><div><h2 id="morningTitle">上午</h2><p>慢慢进入今天的节奏</p></div></div><button type="button" class="add-task" data-add="morning" aria-label="添加上午任务">＋</button></summary><ul id="morningTasks" class="task-list"></ul></details>
+      <details open class="period-card" data-period="daytime" aria-labelledby="daytimeTitle"><summary><div class="period-heading"><span class="period-icon" aria-hidden="true">◷</span><div><h2 id="daytimeTitle">白天</h2><p>把时间留给要紧的事</p></div></div><button type="button" class="add-task" data-add="daytime" aria-label="添加白天任务">＋</button></summary><ul id="daytimeTasks" class="task-list"></ul></details>
+      <details open class="period-card" data-period="evening" aria-labelledby="eveningTitle"><summary><div class="period-heading"><span class="period-icon" aria-hidden="true">☾</span><div><h2 id="eveningTitle">晚上</h2><p>收个尾，也休息一下</p></div></div><button type="button" class="add-task" data-add="evening" aria-label="添加晚上任务">＋</button></summary><ul id="eveningTasks" class="task-list"></ul></details>
+    </div>
+    <footer class="schedule-footer"><details class="backup-panel"><summary>备份与恢复 <span aria-hidden="true">↗</span></summary><p>日程保存在这台设备。导出备份后，可以在另一台设备导入；相同任务会更新，其他记录会保留。</p><div class="backup-actions"><button type="button" id="exportSchedule">导出备份</button><button type="button" id="importSchedule">导入备份</button><input type="file" id="backupFile" accept=".json,application/json" hidden></div></details><p class="widget-note">手机小组件显示今天的安排。勾选后会同步今天的进度。</p></footer>
+  </main>
+  <dialog id="taskDialog" aria-labelledby="dialogTitle"><form id="taskForm"><div class="dialog-heading"><h2 id="dialogTitle">添加一件事</h2><button type="button" id="closeDialog" class="dialog-close" aria-label="关闭编辑">×</button></div><label>想做什么<input type="text" id="taskTitle" maxlength="120" autocomplete="off" placeholder="写下一件想完成的事" required></label><div class="dialog-fields"><label>时间段<select id="taskPeriod"><option value="anytime">随时</option><option value="morning">上午</option><option value="daytime">白天</option><option value="evening">晚上</option></select></label><label>预留时长 / 分钟<input type="number" id="taskMinutes" min="1" max="1440" step="1" value="30" required inputmode="numeric"></label></div><p id="formStatus" class="form-status" role="status"></p><div class="dialog-actions"><button type="button" id="deleteTask" class="delete-task" hidden>删除这件事</button><button type="button" id="cancelDialog" class="secondary-button">取消</button><button type="submit" class="primary-button">保存安排</button></div></form></dialog>
+</body></html>
+

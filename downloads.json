@@ -1,0 +1,20 @@
+{
+  "version": "0.3.0",
+  "website": "https://giogight.github.io/",
+  "windows": {
+    "url": "https://github.com/giogight/giogight.github.io/releases/download/v0.3.0/Guanchao-Setup-0.3.0.exe",
+    "version": "0.3.0"
+  },
+  "portable": {
+    "url": "https://github.com/giogight/giogight.github.io/releases/download/v0.3.0/Guanchao-0.3.0-Windows-x64.zip",
+    "version": "0.3.0"
+  },
+  "android": {
+    "url": "https://github.com/giogight/giogight.github.io/releases/download/v0.3.0/Guanchao-0.3.0-Android.apk",
+    "version": "0.3.0 · 安装测试版"
+  },
+  "source": {
+    "url": "https://github.com/giogight/giogight.github.io/releases/download/v0.3.0/Guanchao-0.3.0-Source.zip",
+    "version": "0.3.0"
+  }
+}

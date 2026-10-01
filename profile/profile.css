@@ -1,0 +1,87 @@
+[hidden] { display: none !important; }
+html, body { width: 100%; color: #2c2937; }
+body { background: #f5f4f8; }
+button:focus-visible { outline: 3px solid #6f8552; outline-offset: 4px; }
+.landing { min-height: 100svh; background: #eceee8; padding: clamp(1.15rem, 3vw, 2.5rem); }
+.landing__header { grid-template-columns: auto 1fr auto; }
+.profile-status { padding-left: 1rem; color: #737971; font: 700 .66rem var(--mono); letter-spacing: .15em; }
+.landing__hero { grid-template-columns: 3.5rem 1fr minmax(12rem, 24rem); gap: clamp(1rem, 3vw, 3rem); min-height: 68svh; }
+.hero-copy h1 { font-size: clamp(4rem, 9.4vw, 8.8rem); line-height: .98; letter-spacing: -.08em; }
+.hero-intro { margin-left: 0; max-width: 33rem; margin-top: 1.8rem; }
+.hero-intro p { color: #5b645c; font-size: clamp(.94rem, 1.2vw, 1.08rem); }
+.enter-button { background: #20362a; color: #f7f7ef; border-color: #20362a; border-radius: 999px; min-height: 48px; min-width: 13rem; padding: .9rem 1.25rem; }
+.enter-button:hover { background: #314b39; }
+.intro-hint { display: block; margin-top: .8rem; font-size: .72rem; color: #737971; }
+.hero-art { position: relative; display: grid; place-items: center; min-height: 24rem; isolation: isolate; }
+.hero-art::before { content: ''; position: absolute; width: 82%; aspect-ratio: 1; border: 1px solid #c2c9bc; border-radius: 50%; z-index: -1; }
+.hero-art::after { content: ''; position: absolute; width: 64%; aspect-ratio: 1; border-radius: 50%; background: #dce1d5; z-index: -2; }
+.hero-art img { width: 120%; max-width: 30rem; filter: drop-shadow(0 2rem 1.7rem #0d1b1920); }
+.hero-art span { position: absolute; bottom: 1.2rem; color: #65715f; font: 700 .57rem var(--mono); letter-spacing: .17em; }
+.landing__footer { color: #7a8276; padding-right: 5rem; }
+.landing__footer span:last-child { font-family: var(--body); letter-spacing: .03em; }
+.takeover { width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; border: 0; padding: 0; overflow: hidden; }
+.takeover:not([open]) { display: none; }
+.takeover.active { display: block; }
+.takeover .controls { top: 1rem; bottom: auto; right: 1rem; }
+.takeover .hud { right: 22rem; }
+.takeover .controls .control { min-height: 44px; font-size: .69rem; border-radius: 8px; }
+.takeover .scene { overflow-y: auto; }
+.scene[aria-hidden="true"] { pointer-events: none; }
+.takeover .sequence { grid-template-columns: repeat(7, 1fr); width: min(23rem, 70vw); }
+.takeover[data-stage="6"] .sequence { opacity: 0; }
+.takeover .hud__status { color: var(--cyan); }
+.takeover .signal-lock h2, .takeover .identity-frame h2 { line-height: .96; }
+.photography-background { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr); pointer-events: none; z-index: -1; }
+.photography-background img { width: 100%; height: 100%; min-height: 0; object-fit: cover; opacity: .38; filter: saturate(.6); }
+.photography-background::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, #08090bf5, #08090b25 70%); }
+.photography-copy { position: relative; width: min(74rem, 100%); }
+.photography-copy h2 { margin: 0; font: 900 clamp(4.8rem, 12vw, 10rem)/1 var(--display); letter-spacing: -.07em; }
+.photography-copy p:not(.scene-code) { margin-top: 1.8rem; font-size: clamp(1rem, 2vw, 1.4rem); color: #d8dedf; }
+.photography-copy span { display: block; margin-top: 2.5rem; font: 650 .7rem var(--mono); letter-spacing: .17em; color: #97a4a7; }
+.pong-launcher { position: fixed; right: max(1.15rem, env(safe-area-inset-right)); bottom: max(1.15rem, env(safe-area-inset-bottom)); z-index: 10; width: 58px; height: 58px; border: 1px solid #698274; border-radius: 18px; background: #20362a; color: #e9efcb; box-shadow: 0 6px 24px #263c3024; display: grid; place-items: center; cursor: pointer; transition: transform .18s, background .18s; }
+.pong-launcher svg { width: 37px; height: 37px; }
+.pong-launcher:hover { transform: translateY(-3px); background: #314b39; }
+.pong-dialog { width: min(760px, calc(100% - 2rem)); max-height: calc(100svh - 2rem); overflow: auto; padding: clamp(1rem, 3vw, 1.5rem); border: 1px solid #354743; border-radius: 22px; background: #0c1513; color: #e9eee8; box-shadow: 0 20px 100px #081b174f; }
+.pong-dialog::backdrop { background: #162b1c88; backdrop-filter: blur(8px); }
+.pong-header { display: flex; align-items: start; justify-content: space-between; gap: 1rem; }
+.game-kicker { margin: 0 0 .65rem; font: 650 .6rem var(--mono); letter-spacing: .16em; color: #a7b28d; }
+.pong-header h2 { margin: 0; font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.15; letter-spacing: -.06em; }
+.icon-button { width: 48px; height: 48px; border: 1px solid #40544b; border-radius: 13px; background: #15241e; color: #d1dcc7; font-size: 1.65rem; cursor: pointer; flex-shrink: 0; }
+.pong-stats { display: flex; flex-wrap: wrap; gap: .5rem .7rem; align-items: center; margin: 1.15rem 0; font-size: .78rem; color: #c2cfb9; }
+.pong-stats > span { padding: .5rem .75rem; border: 1px solid #324136; border-radius: 8px; }
+.pong-stats b { color: #e5ebbf; font-size: 1rem; }
+.pong-stats .difficulty-note { margin-left: auto; border: 0; padding-left: 0; color: #81927f; font-size: .69rem; }
+.pong-board { position: relative; width: 100%; height: clamp(260px, 49svh, 420px); overflow: hidden; border: 1px solid #345446; border-radius: 12px; background: radial-gradient(circle at 50% 100%, #b2cd6020, transparent 55%), #09100e; }
+.pong-board canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.pong-board canvas:focus-visible { outline: 3px solid #c3d69a; outline-offset: -4px; }
+.pong-curtain { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 1rem; padding: 1rem; text-align: center; background: #09130de8; }
+.pong-curtain p { margin: 0; line-height: 1.85; color: #acbda1; font-size: .94rem; }
+.pong-curtain button { min-height: 48px; min-width: 136px; padding: .85rem 1.4rem; border-radius: 999px; border: 1px solid #c4d88f; color: #142412; background: #c4d88f; font-weight: 750; cursor: pointer; }
+.pong-help { margin: 1rem 0 0; color: #84957e; font-size: .72rem; line-height: 1.8; }
+.game-status { min-height: 1.2rem; margin: .5rem 0 0; color: #d3dfb5; font-size: .75rem; }
+.module-paused *, .module-paused *::before, .module-paused *::after { animation-play-state: paused !important; }
+@media (max-width: 780px) {
+  .landing__hero { grid-template-columns: 1fr; padding-top: 3.5rem; padding-bottom: 2rem; gap: 1rem; }
+  .hero-index { display: none; }
+  .hero-copy h1 { font-size: clamp(4rem, 16vw, 7rem); }
+  .hero-art { min-height: 15rem; order: -1; width: min(80%, 24rem); margin: 0 auto; }
+  .hero-art img { width: 100%; }
+  .hero-art span { bottom: 0; font-size: .5rem; }
+  .profile-status { padding-left: .4rem; font-size: .52rem; }
+  .edition { font-size: .58rem; letter-spacing: .05em; }
+  .takeover .hud { right: 1rem; top: 4.8rem; font-size: .53rem; }
+  .takeover .controls { right: .75rem; top: .75rem; gap: .35rem; }
+  .takeover .controls .control { padding: .7rem; font-size: .63rem; }
+  .takeover .scene { padding-top: 7rem; }
+  .photography-background { grid-template-columns: 1fr; grid-template-rows: repeat(3, 1fr); }
+  .photography-background img { min-height: 0; }
+  .photography-copy h2 { font-size: clamp(4.6rem, 25vw, 7rem); }
+  .pong-dialog { width: calc(100% - 1rem); max-height: calc(100svh - 1rem); border-radius: 18px; }
+  .pong-stats .difficulty-note { width: 100%; margin-left: 0; padding: .15rem 0 0; }
+  .pong-board { height: clamp(245px, 46svh, 390px); }
+  .landing__footer { font-size: .6rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pong-launcher { transition: none; }
+  .takeover .object-stage img, .takeover .logo-core { opacity: 1; transform: none; filter: none; }
+}

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none">
+ <defs>
+  <linearGradient id="schedule-paper" x1="42" y1="27" x2="115" y2="126" gradientUnits="userSpaceOnUse"><stop stop-color="#fff"/><stop offset=".44" stop-color="#eee6fc"/><stop offset="1" stop-color="#bfa6e6"/></linearGradient>
+  <linearGradient id="schedule-edge" x1="34" y1="55" x2="116" y2="140" gradientUnits="userSpaceOnUse"><stop stop-color="#c3a8ed"/><stop offset="1" stop-color="#7f59b9"/></linearGradient>
+  <linearGradient id="schedule-top" x1="39" y1="37" x2="114" y2="65" gradientUnits="userSpaceOnUse"><stop stop-color="#bfa3e9"/><stop offset="1" stop-color="#8561bc"/></linearGradient>
+  <linearGradient id="schedule-check" x1="94" y1="92" x2="135" y2="134" gradientUnits="userSpaceOnUse"><stop stop-color="#dbc8fa"/><stop offset=".48" stop-color="#af8bdd"/><stop offset="1" stop-color="#7650b0"/></linearGradient>
+  <filter id="schedule-shadow" x="0" y="0" width="160" height="160" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="5"/></filter>
+ </defs>
+ <ellipse cx="82" cy="138" rx="45" ry="8" fill="#573286" fill-opacity=".15" filter="url(#schedule-shadow)"/>
+ <g transform="rotate(-7 78 86)">
+  <rect x="33" y="40" width="88" height="95" rx="16" fill="url(#schedule-edge)"/>
+  <rect x="30" y="34" width="88" height="95" rx="16" fill="url(#schedule-paper)" stroke="#f5eeff" stroke-width="1.5"/>
+  <path d="M30 52c0-10 6-18 17-18h54c10 0 17 8 17 18v13H30Z" fill="url(#schedule-top)"/>
+  <path d="M37 55V50q0-10 10-10h42" stroke="#fff" stroke-opacity=".68" stroke-width="2.5" stroke-linecap="round"/>
+  <rect x="48" y="24" width="8" height="27" rx="4" fill="#7a54b2"/><rect x="46" y="22" width="8" height="27" rx="4" fill="#e6d6ff" stroke="#fff" stroke-opacity=".8"/>
+  <rect x="93" y="24" width="8" height="27" rx="4" fill="#7a54b2"/><rect x="91" y="22" width="8" height="27" rx="4" fill="#e6d6ff" stroke="#fff" stroke-opacity=".8"/>
+  <rect x="45" y="79" width="13" height="12" rx="3" fill="#b696db" fill-opacity=".78"/><rect x="67" y="79" width="13" height="12" rx="3" fill="#b696db" fill-opacity=".78"/><rect x="89" y="79" width="13" height="12" rx="3" fill="#b696db" fill-opacity=".78"/>
+  <rect x="45" y="101" width="13" height="12" rx="3" fill="#b696db" fill-opacity=".55"/><rect x="67" y="101" width="13" height="12" rx="3" fill="#b696db" fill-opacity=".55"/>
+  <path d="M43 124h58q11 0 11-11" stroke="#9270bf" stroke-opacity=".24" stroke-width="2" stroke-linecap="round"/>
+ </g>
+ <circle cx="117" cy="117" r="23" fill="#7045a9" fill-opacity=".25"/><circle cx="115" cy="113" r="23" fill="url(#schedule-check)" stroke="#eadcff" stroke-width="1.5"/>
+ <path d="m104 113 8 8 14-17" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+ <path d="M99 111a17 17 0 0 1 19-15" stroke="#fff" stroke-opacity=".6" stroke-width="2" stroke-linecap="round"/>
+</svg>

@@ -1,12 +1,3 @@
-.env
-.env.*
-*.pem
-*.key
-*.p12
-*.pfx
 node_modules/
-.openai/
-.sites-runtime/
-*.tar.gz
-Thumbs.db
-Desktop.ini
+.env
+.DS_Store

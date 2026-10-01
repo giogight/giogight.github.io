@@ -1,0 +1,10 @@
+{
+  "name": "hash.js",
+  "version": "1.1.7",
+  "license": "MIT",
+  "author": "Fedor Indutny <fedor@indutny.com>",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:indutny/hash.js"
+  }
+}

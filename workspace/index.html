@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>观潮 · 灵感工作台</title>
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="workspace.css">
+<script src="workspace-data.js" defer></script>
+<script src="bridge.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body data-theme="day">
+<header class="titlebar"><div class="window-title"><span class="brand-dot"></span>观潮 <span class="title-separator">/</span> 灵感工作台</div><div class="window-actions"><button type="button" data-action="minimize" aria-label="最小化" data-icon="minus"></button><button type="button" data-action="maximize" aria-label="最大化" data-icon="square"></button><button type="button" data-action="close" class="close-window" aria-label="关闭" data-icon="x"></button></div></header>
+<div class="app-layout">
+<aside class="sidebar">
+ <div class="brand"><span class="brand-symbol" data-icon="waves"></span><div>观潮<small>GUANCHAO</small></div></div>
+  <nav class="main-nav" aria-label="工作台导航"><button type="button" data-page="home" class="nav-button selected"><span data-icon="compass"></span>平台</button><button type="button" id="notes-nav" class="nav-button"><span data-icon="film"></span>笔记</button><button type="button" data-page="history" class="nav-button"><span data-icon="history"></span>记录</button><button type="button" data-page="bookmarks" class="nav-button"><span data-icon="bookmark"></span>收藏<span id="bookmark-count" class="count">0</span></button></nav>
+  <div class="sidebar-bottom"><button type="button" id="theme-button" class="nav-button"><span id="theme-icon" data-icon="moon"></span><span id="theme-label">切换夜晚</span></button><p id="runtime-label" class="workspace-runtime-label">笔记保存在本机</p><button type="button" id="about-button" class="subtle-link">关于灵感工作台</button></div>
+</aside>
+<main id="main">
+ <section id="home-page" class="page home-page">
+  <div class="eyebrow-line"><span>INSPIRATION WORKSPACE</span><span class="theme-description">日间 · 柔光</span></div>
+  <div class="hero"><div><h1>今天，从哪里找灵感？</h1><p>内容、生活与趋势，都值得看一看。</p></div><button type="button" class="button quiet" data-action="link-dialog"><span data-icon="link"></span>打开链接</button></div>
+  <div id="source-grid" class="source-grid"></div>
+  <div class="section-heading"><h2>选题备忘</h2><span class="section-caption">先留问题，再补素材</span></div>
+  <div id="home-topics" class="home-topics"></div>
+  <div class="section-heading"><h2>最近浏览</h2><button type="button" class="text-button" data-page="history">全部记录 <span data-icon="arrow-right"></span></button></div>
+  <div id="recent-list" class="record-list"></div>
+  <div id="recent-empty" class="small-empty">看过的内容会留在这里，下次接着看。</div>
+  <div class="home-foot"><span><span data-icon="bookmark"></span>看到好内容，随手留一条灵感。</span><span>八个研究方向</span></div>
+ </section>
+ <section id="history-page" class="page" hidden><div class="eyebrow-line"><span>RECENT RESEARCH</span><span>记录保存在本机</span></div><div class="hero compact"><div><h1>浏览记录</h1><p>找到上次的那条内容，继续打开。</p></div><button type="button" class="button quiet" id="clear-history">清空记录</button></div><label class="search-field"><span data-icon="search"></span><input type="search" id="history-search" placeholder="查找看过的内容" aria-label="搜索浏览记录"></label><div id="history-list" class="record-list"></div><div id="history-empty" class="empty-state"><span data-icon="history"></span><h2>从一次发现开始。</h2><p>打开研究入口后，浏览过的网页会自动记录。</p><button type="button" class="button" data-page="home">去发现</button></div></section>
+ <section id="bookmarks-page" class="page" hidden><div class="eyebrow-line"><span>YOUR INSPIRATION</span><span>灵感留在这里</span></div><div class="hero compact"><div><h1>灵感库</h1><p>留下一个链接，也留下一个好想法。</p></div></div><label class="search-field"><span data-icon="search"></span><input type="search" id="bookmark-search" placeholder="查找收藏与笔记" aria-label="搜索收藏"></label><div id="bookmarks-list" class="record-list"></div><div id="bookmarks-empty" class="empty-state"><span data-icon="bookmark"></span><h2>给好想法留个位置。</h2><p>浏览时点击「收藏」，便能在这里再次打开。</p><button type="button" class="button" data-page="home">去发现</button></div></section>
+ <section id="browse-page" class="browse-page" hidden>
+  <div class="browse-top"><div class="browse-label"><span class="eyebrow">CONTENT EXPLORATION</span><h1 id="browse-heading">内容采样</h1></div><div class="browse-tools"><button type="button" class="icon-button" id="go-back" data-action="back" aria-label="后退" data-icon="arrow-left"></button><button type="button" class="icon-button" id="go-forward" data-action="forward" aria-label="前进" data-icon="arrow-right"></button><button type="button" class="icon-button" data-action="reload" aria-label="重新加载" data-icon="refresh"></button><span class="toolbar-divider"></span><button type="button" class="icon-button" id="mute-button" data-action="mute" aria-label="开启声音" data-icon="volume-off"></button><button type="button" class="icon-button" data-action="source-home" aria-label="返回当前入口首页" data-icon="compass"></button><button type="button" class="icon-button" data-action="link-dialog" aria-label="打开内容链接" data-icon="link"></button><button type="button" class="icon-button" data-action="external" aria-label="在默认浏览器打开" data-icon="external"></button><button type="button" class="button accent" data-action="bookmark"><span data-icon="bookmark"></span>收藏</button></div></div>
+  <div id="source-switch" class="source-switch" aria-label="研究方向"></div>
+  <div id="research-layout" class="research-layout">
+   <section class="research-panel" aria-label="选题笔记">
+     <div class="research-heading"><div><span class="eyebrow">EDITORIAL NOTES</span><h2>选题笔记</h2></div><div class="research-actions"><button type="button" class="button accent" id="add-note">新增</button><button type="button" class="button quiet" id="export-notes">导出</button><button type="button" class="text-button" id="undo-notes" hidden>撤回换组</button><button type="button" class="button quiet" id="shuffle-notes"><span data-icon="refresh"></span>换草稿</button></div></div>
+     <label class="search-field notes-search"><span data-icon="search"></span><input id="notes-search" type="search" placeholder="查找这个方向的笔记" aria-label="搜索选题笔记"></label>
+     <div class="topic-columns"><span>选题 / 观察方向</span><span id="note-count" class="workspace-note-count"></span><span>进度</span></div>
+    <div id="topic-list" class="topic-list"></div>
+    <form id="research-form" class="research-editor">
+     <div class="editor-topline"><span id="note-tag" class="note-tag">结构拆解</span><span id="research-save-status" role="status">草稿已保存</span></div>
+     <label class="sr-only" for="research-title">选题名称</label><input id="research-title" class="research-title" maxlength="100" placeholder="选题名称" required>
+     <label class="sr-only" for="research-body">拆解思路和下一步</label><textarea id="research-body" maxlength="5000" spellcheck="false" placeholder="记下一点思路，或者下一步要补的素材。"></textarea>
+     <div class="editor-footer"><label>进度<select id="research-status"><option>待采样</option><option>待比较</option><option>待整理</option><option>待验证</option></select></label><button type="submit" class="button" id="save-research">保存笔记</button></div>
+    </form>
+   </section>
+   <section class="preview-panel" aria-label="素材预览">
+    <div class="preview-heading"><span><i></i>素材预览</span><div><button type="button" class="text-button" id="wide-preview">放大</button><button type="button" class="text-button" data-page="home">收起</button></div></div>
+    <div id="browser-host" class="browser-host"><div id="browser-message" class="browser-message"><span data-icon="compass"></span><h2 id="browser-message-title">正在打开内容</h2><p id="browser-message-text">首次加载可能需要一点时间。</p><div id="error-actions" hidden><button type="button" class="button" data-action="reload">重新加载</button><button type="button" class="button quiet" data-action="external">用浏览器打开</button></div></div></div>
+   </section>
+  </div>
+  <div class="browser-status"><span id="load-status" role="status">准备就绪</span><span>Ctrl + Shift + H 回到工作台</span></div>
+ </section>
+</main>
+</div>
+<div id="toast" class="toast" role="status" hidden></div>
+<dialog id="link-dialog"><form id="link-form"><div class="dialog-heading"><h2>打开内容链接</h2><button type="button" class="icon-button" data-close-dialog aria-label="关闭" data-icon="x"></button></div><p>粘贴内容的网页链接，打开后会自动记入浏览记录。</p><input id="link-input" type="url" placeholder="https://…" aria-label="内容链接" required autocomplete="off"><div class="dialog-footer"><button type="button" class="button quiet" data-close-dialog>取消</button><button type="submit" class="button accent">打开</button></div></form></dialog>
+<dialog id="edit-dialog"><form id="edit-form"><div class="dialog-heading"><h2>编辑灵感</h2><button type="button" class="icon-button" data-close-dialog aria-label="关闭" data-icon="x"></button></div><label>名称<input id="edit-title" maxlength="120" required></label><label>一句想法<textarea id="edit-note" rows="4" maxlength="500" placeholder="这条内容有什么值得借鉴？"></textarea></label><div class="dialog-footer"><button type="button" class="button quiet" data-close-dialog>取消</button><button type="submit" class="button accent">保存</button></div></form></dialog>
+<dialog id="clear-dialog"><div class="dialog-heading"><h2>清空浏览记录？</h2></div><p>将删除本机的浏览记录和上次浏览位置，收藏及登录状态会保留。</p><div class="dialog-footer"><button type="button" class="button quiet" data-close-dialog>取消</button><button type="button" class="button accent" id="confirm-clear">清空记录</button></div></dialog>
+<dialog id="about-dialog"><div class="dialog-heading"><h2>灵感工作台</h2><button type="button" class="icon-button" data-close-dialog aria-label="关闭" data-icon="x"></button></div><p>八个研究方向 · <span id="version-label">0.3.0</span></p><p id="about-storage">浏览记录、收藏和账户会话保存在本机。应用不上传你的浏览记录。</p><p id="about-browser">第三方页面可能要求登录或验证。历史记录按网页地址保存；没有独立地址的视频、动态推荐位置和精确播放进度暂不保证恢复。</p><p>初始选题是本地写作草稿，不是平台抓取数据或效果报告。每个方向最多可保留100条笔记，换草稿会保留已编辑笔记。</p><div class="dialog-footer"><button type="button" class="button accent" data-close-dialog>知道了</button></div></dialog>
+</body>
+</html>
