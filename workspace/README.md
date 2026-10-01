@@ -1,6 +1,6 @@
 # Workspace integration
 
-Embed `workspace/index.html` in a same-origin iframe occupying the outer shell's main content region. The iframe's document does not embed any third-party website. On desktop the existing isolated `WebContentsView` is positioned over the local browser-host region using the iframe's top-level offset; web and mobile links open in an external window.
+Embed `workspace/index.html` in a same-origin iframe occupying the outer shell's main content region. On desktop the existing isolated `WebContentsView` is positioned over the local browser-host region using the iframe's top-level offset. Web source selection keeps the workspace visible and does not navigate or open a platform. The explicit adjacent-window action requests a popup aligned to the right preview with `noopener,noreferrer`; browser policies may instead open a tab or block popups. The preview explains that limitation and links to the desktop app for in-window browsing. Third-party websites are not framed, so their frame restrictions remain respected.
 
 The module chooses `window.parent.guanchao` or `window.guanchao` when available. Its desktop actions retain the original `init/page/open/resume/open-link/source-home/back/forward/reload/external/bookmark/remove/rename/clear-history/theme/mute/research-save/research-shuffle/research-undo` contract. It adds `research-add {source}` returning `{ok,state,createdId}`. History and bookmarks are identified by stable IDs; no credentials or arbitrary local file paths are exposed.
 

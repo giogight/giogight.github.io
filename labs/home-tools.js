@@ -158,12 +158,11 @@
     }
     map=L.map('travelMap',{scrollWheelZoom:false}).setView([32.8,110.5],4);
     cityLayer=L.layerGroup().addTo(map);routeLayer=L.layerGroup().addTo(map);discoveryLayer=L.layerGroup().addTo(map);
-    const tiles=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
-      maxZoom:18,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
-    }).addTo(map);
-    tiles.on('tileload',()=>{tilesReady=true;if(liveMode)return;mapStatus.textContent='地图已加载 · 热度为你的偏好匹配分，不是实时客流。可缩放地图，点击城市查看攻略。';});
-    tiles.on('tileerror',()=>{mapStatus.textContent=liveMode?'部分底图未能加载，可稍后刷新；旅游地点标记与当前记录仍可查看。':'部分底图未能加载，可稍后刷新；城市标记与下方攻略仍可使用。热度不是实时客流。';});
-    setTimeout(()=>{if(!tilesReady)mapStatus.textContent=liveMode?'底图加载较慢或不可达；旅游地点坐标与当前记录仍可查看。':'底图加载较慢或不可达。可使用下方城市推荐；标记是坐标示意，热度不是实时客流。';},10000);
+    window.GuanchaoMapTiles?.create(map,{onStatus:info=>{
+      if(info.state==='ready'){tilesReady=true;if(!liveMode)mapStatus.textContent='地图已加载 · 热度为你的偏好匹配分，不是实时客流。可缩放地图，点击城市查看攻略。';}
+      else if(info.state==='switching')mapStatus.textContent='底图连接较慢，正在切换备用线路；城市与攻略仍可使用。';
+      else if(info.state==='partial'||info.state==='unavailable')mapStatus.textContent='底图线路暂不可达；地点坐标、城市推荐与下方攻略仍可使用。热度不是实时客流。';
+    },isActive:()=>!document.hidden&&location.hash==='#travel'&&$('legacyTravelPlanner').open});
     if(window.ResizeObserver)new ResizeObserver(()=>map.invalidateSize()).observe($('travelMap'));
   }
   function heatTier(score) {return score>=75?'high':score>=60?'mid':'low';}

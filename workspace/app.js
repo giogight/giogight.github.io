@@ -99,8 +99,8 @@ function closeDialogs(){document.querySelectorAll('dialog[open]').forEach(d=>d.c
 document.querySelectorAll('dialog').forEach(d=>d.addEventListener('close',updateBounds));
 document.addEventListener('click',async event=>{
  const topic=event.target.closest('[data-topic]');if(topic){if(await saveResearch()){selectedNotes[browser.source]=topic.dataset.topic;renderResearch();}return;}
- const homeTopic=event.target.closest('[data-home-topic]');if(homeTopic){if(await saveResearch()){selectedNotes[homeTopic.dataset.topicSource]=homeTopic.dataset.homeTopic;await request('open',{source:homeTopic.dataset.topicSource});}return;}
- const src=event.target.closest('[data-source]');if(src){if(await saveResearch())await request('open',{source:src.dataset.source});return;}
+ const homeTopic=event.target.closest('[data-home-topic]');if(homeTopic){if(await saveResearch()){selectedNotes[homeTopic.dataset.topicSource]=homeTopic.dataset.homeTopic;await request(api.native?'open':'select-source',{source:homeTopic.dataset.topicSource});}return;}
+ const src=event.target.closest('[data-source]');if(src){if(await saveResearch())await request(api.native?'open':'select-source',{source:src.dataset.source});return;}
  const nav=event.target.closest('[data-page]');if(nav){if(await saveResearch()&&await request('page',{page:nav.dataset.page}))showPage(nav.dataset.page);return;}
  const resume=event.target.closest('[data-resume]');if(resume){if(await saveResearch())await request('resume',{id:resume.dataset.resume});return;}
  const remove=event.target.closest('[data-remove]');if(remove){await request('remove',{id:remove.dataset.remove,kind:remove.dataset.kind});return;}
@@ -127,16 +127,22 @@ new ResizeObserver(updateBounds).observe($('browser-host'));
 if(api){api.listen(data=>{if(data.state)updateState(data.state);if(data.browser){browser=data.browser;renderBrowser();renderExternal();}if(data.page)showPage(data.page);if(data.notice)toast(data.notice);if(data.resize)requestAnimationFrame(updateBounds);});request('init').then(result=>{if(result)$('version-label').textContent=result.version;setupRuntime();postReady();});}
 function renderExternal(){
  if(api.native||!browser.source)return;
- $('browser-message-title').textContent='平台在新窗口打开';$('browser-message-text').textContent='在平台查看素材，回到这里整理笔记、收藏链接。';$('error-actions').hidden=false;
- $('error-actions').replaceChildren();const button=document.createElement('button');button.type='button';button.className='button accent';button.textContent='再次打开平台';button.addEventListener('click',()=>request('external'));$('error-actions').append(button);
- $('load-status').textContent='本页保留笔记 · 第三方平台在外部窗口';
+ const platform={sample:'抖音',lifestyle:'小红书',local:'美团',shopping:'淘宝',product:'京东',longform:'哔哩哔哩',pulse:'微博',community:'贴吧'}[browser.source]||'平台';
+ $('browser-message-title').textContent=platform+'在旁边，笔记在这里';
+ $('browser-message-text').textContent=browser.windowRequested?'已请求打开旁边的小窗口。如果没有出现，请允许弹出窗口后再试。':'先保留工作台，再打开旁边的素材窗口，一边看、一边记。';$('error-actions').hidden=false;
+ $('error-actions').replaceChildren();const button=document.createElement('button');button.type='button';button.className='button accent';button.textContent='并排打开'+platform;button.addEventListener('click',()=>request('external'));
+ const download=document.createElement('a');download.className='button quiet';download.textContent='在电脑App内浏览';download.href=new URL('../#downloads',location.href).href;download.target='_top';
+ $('error-actions').append(button,download);
+ let hint=$('preview-web-hint');if(!hint){hint=document.createElement('p');hint.id='preview-web-hint';hint.className='platform-explanation';$('browser-message').append(hint);}
+ hint.textContent='平台限制网页内嵌。浏览器若只允许新标签，可将它拖到旁边；电脑App可直接在此预览。';
+ $('load-status').textContent='工作台保持打开 · 素材窗口可并排查看';
 }
 function setupRuntime(){
  document.body.dataset.runtime=api.native?'desktop':'web';
- if(!api.native){$('runtime-label').textContent='保存在当前浏览器\n平台在新窗口打开';$('about-storage').textContent='选题笔记、打开记录及收藏保存在当前浏览器。清理网站数据会移除本地资料，请定期导出笔记。';$('about-browser').textContent='网页版与手机版通过外部窗口打开平台，不会读取第三方页面的实际浏览历史或登录状态。';$('history-page').querySelector('h1').textContent='打开记录';$('history-page').querySelector('.hero p').textContent='保存从工作台打开的链接，下次接着看。';$('history-empty').querySelector('p').textContent='从工作台打开平台或链接后，会在这里留一条记录。';$('link-dialog').querySelector('p').textContent='粘贴网页链接，在外部窗口打开，并保存在本页打开记录中。';$('clear-dialog').querySelector('p').textContent='将移除当前浏览器中的打开记录。收藏及选题笔记会保留。';$('mute-button').hidden=true;$('go-back').hidden=true;$('go-forward').hidden=true;$('wide-preview').hidden=true;}
+ if(!api.native){$('runtime-label').textContent='笔记保存在当前浏览器\n素材可在旁边打开';$('about-storage').textContent='选题笔记、打开记录及收藏保存在当前浏览器。清理网站数据会移除本地资料，请定期导出笔记。';$('about-browser').textContent='选择方向会保留工作台。点击并排打开后，浏览器尝试在旁边开一个素材窗口；部分浏览器会改为新标签。电脑App在右侧直接浏览，不读取外部浏览器的历史或登录状态。';$('history-page').querySelector('h1').textContent='打开记录';$('history-page').querySelector('.hero p').textContent='保存从工作台打开的链接，下次接着看。';$('history-empty').querySelector('p').textContent='从工作台打开平台或链接后，会在这里留一条记录。';$('link-dialog').querySelector('p').textContent='粘贴网页链接，先回到工作台准备素材；点击右侧“并排打开”后查看。';$('clear-dialog').querySelector('p').textContent='将移除当前浏览器中的打开记录。收藏及选题笔记会保留。';$('mute-button').hidden=true;$('go-back').hidden=true;$('go-forward').hidden=true;$('wide-preview').hidden=true;document.querySelector('[data-action=external]').setAttribute('aria-label','在旁边打开平台');}
 }
 function postReady(){if(window.parent!==window)window.parent.postMessage({type:'guanchao:workspace-ready',native:api.native},location.protocol==='file:'?'*':location.origin);}
-$('notes-nav').addEventListener('click',async()=>{if(!await saveResearch())return;const sourceId=browser.source||'sample';if(api.native)await request('open',{source:sourceId});else{browser={source:sourceId,back:false,forward:false};showPage('browse');renderBrowser();renderExternal();}requestAnimationFrame(()=>$('research-title').focus());});
+$('notes-nav').addEventListener('click',async()=>{if(!await saveResearch())return;const sourceId=browser.source||'sample';await request(api.native?'open':'select-source',{source:sourceId});requestAnimationFrame(()=>$('research-title').focus());});
 $('notes-search').addEventListener('input',renderResearch);
 $('add-note').addEventListener('click',async()=>{if(!await saveResearch())return;const sourceId=browser.source||'sample';const result=await request('research-add',{source:sourceId});if(result){selectedNotes[sourceId]=result.createdId;renderResearch();$('research-title').focus();$('research-title').select();}});
 $('export-notes').addEventListener('click',async()=>{if(!await saveResearch())return;const sourceId=browser.source||'sample';const notes=state.research?.[sourceId]||[];const title=source(sourceId)?.label||'选题笔记';const content='# '+title+' · 选题笔记\n\n导出日期：'+new Date().toLocaleDateString('zh-CN')+'\n\n'+notes.map(note=>'## '+note.title+'\n\n方向：'+note.tag+' ｜ 进度：'+note.status+'\n\n'+note.body+'\n').join('\n---\n\n');const blob=new Blob([content],{type:'text/markdown;charset=utf-8'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='观潮-'+title+'-选题笔记.md';link.click();setTimeout(()=>URL.revokeObjectURL(url),5000);toast('已导出 '+notes.length+' 条笔记');});

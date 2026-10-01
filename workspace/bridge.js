@@ -6,7 +6,7 @@
  const KEY='gc-web-workspace-v1',DATA=window.GC_WORKSPACE_DATA,STATUSES=['待采样','待比较','待整理','待验证'];
  const clone=value=>JSON.parse(JSON.stringify(value));
  const uuid=()=>window.crypto?.randomUUID?.()||'gc-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
- const listeners=new Set();let active=null,currentURL=null;
+ const listeners=new Set();let active=null,currentURL=null,windowRequested=false;
  const validSource=id=>DATA.sources.find(source=>source.id===id);
  const safeURL=value=>{try{const url=new URL(String(value));return ['https:','http:'].includes(url.protocol)&&!url.username&&!url.password?url.href:null;}catch{return null;}};
  const recordable=value=>{const u=safeURL(value);if(!u)return false;const url=new URL(u);return !/(^|\.)(?:login|passport|auth|sso)\./i.test(url.hostname)&&! /\/(?:login|signin|oauth|authorize|passport|captcha|verify)(?:[/?._-]|$)/i.test(url.pathname)&&!url.searchParams.has('access_token')&&!url.searchParams.has('authorization_code');};
@@ -23,12 +23,34 @@
  function save(){localStorage.setItem(KEY,JSON.stringify(state));}
  function publicData(){return {...state,sources:DATA.sources.map(({id,label,detail,icon})=>({id,label,detail,icon})),canUndoResearch:Object.keys(state.previousResearch)};}
  function emit(value){for(const listener of listeners)listener(value);}
- function browser(){return {source:active,title:validSource(active)?.label||'平台入口',loading:false,back:false,forward:false,error:null,muted:state.muted,external:true};}
+ function browser(){return {source:active,title:validSource(active)?.label||'平台入口',loading:false,back:false,forward:false,error:null,muted:state.muted,external:true,windowRequested};}
+ function select(sourceId,url){
+  const source=validSource(sourceId);if(!source)throw new Error('平台入口不存在');
+  const target=safeURL(url||source.url);if(!target)throw new Error('请输入完整的 http 或 https 链接');
+  active=sourceId;currentURL=target;windowRequested=false;
+  emit({page:'browse',browser:browser(),state:publicData()});
+ }
+ function sideWindowFeatures(){
+  // Request a separate window aligned with the right preview. Browsers may
+  // ignore popup geometry; no third-party framing or opener access is used.
+  let host=window;
+  try{if(window.parent.location.origin===location.origin)host=window.parent;}catch{}
+  const available=host.screen||window.screen;
+  const areaLeft=Number(available.availLeft)||0,areaTop=Number(available.availTop)||0;
+  const areaWidth=Number(available.availWidth)||1440,areaHeight=Number(available.availHeight)||900;
+  const width=Math.min(areaWidth,Math.max(440,Math.min(720,Math.round(host.outerWidth*.45))));
+  const height=Math.min(areaHeight,Math.max(500,host.outerHeight||750));
+  let previewLeft=Math.round((host.screenX||0)+(host.outerWidth||1100)-width);
+  try{const frame=window.frameElement?.getBoundingClientRect(),preview=document.getElementById('browser-host')?.getBoundingClientRect();if(preview)previewLeft=Math.round((host.screenX||0)+(frame?.x||0)+preview.x);}catch{}
+  const left=Math.max(areaLeft,Math.min(areaLeft+areaWidth-width,previewLeft));
+  const top=Math.max(areaTop,Math.min(areaTop+areaHeight-height,host.screenY||0));
+  return `popup=yes,width=${width},height=${height},left=${left},top=${top},noopener,noreferrer`;
+ }
  function open(sourceId,url){
   const source=validSource(sourceId);if(!source)throw new Error('平台入口不存在');
   const target=safeURL(url||source.url);if(!target)throw new Error('请输入完整的 http 或 https 链接');
   active=sourceId;currentURL=target;
-  window.open(target,'_blank','noopener,noreferrer');
+  window.open(target,'_blank',sideWindowFeatures());windowRequested=true;
   if(recordable(target)){
    const old=state.history.find(row=>row.url===target&&row.source===active);
    const row={id:old?.id||uuid(),source:active,url:target,title:source.label+' · 已打开链接',visited:Date.now()};
@@ -41,11 +63,13 @@
    switch(action){
     case 'init':return {ok:true,state:publicData(),version:'网页版'};
     case 'page':return {ok:true,state:publicData()};
-    case 'open':open(payload.source);break;
-    case 'source-home':if(active)open(active);break;
-    case 'open-link':{const target=safeURL(payload.url);if(!target)throw new Error('请输入完整的 http 或 https 链接');const host=new URL(target).hostname;const source=DATA.sources.find(source=>source.domains.some(domain=>host===domain||host.endsWith('.'+domain)))?.id||active;if(!source)throw new Error('请先选择一个平台入口');open(source,target);break;}
-    case 'resume':{const row=[...state.history,...state.bookmarks].find(row=>row.id===payload.id);if(!row)throw new Error('记录不存在');open(row.source,row.url);break;}
-    case 'reload':case 'external':if(active)open(active,currentURL);break;
+    case 'select-source':select(payload.source);break;
+    case 'open':select(payload.source);break;
+    case 'source-home':if(active)select(active);break;
+    case 'open-link':{const target=safeURL(payload.url);if(!target)throw new Error('请输入完整的 http 或 https 链接');const host=new URL(target).hostname;const source=DATA.sources.find(source=>source.domains.some(domain=>host===domain||host.endsWith('.'+domain)))?.id||active;if(!source)throw new Error('请先选择一个平台入口');select(source,target);break;}
+    case 'resume':{const row=[...state.history,...state.bookmarks].find(row=>row.id===payload.id);if(!row)throw new Error('记录不存在');select(row.source,row.url);break;}
+    case 'reload':emit({browser:browser()});break;
+    case 'external':if(active)open(active,currentURL);break;
     case 'theme':state.theme=payload.theme==='night'?'night':'day';save();emit({state:publicData()});break;
     case 'mute':state.muted=!state.muted;save();emit({state:publicData(),browser:browser()});break;
     case 'bookmark':{
