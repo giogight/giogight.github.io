@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>登录观潮</title>
+  <link rel="icon" href="../icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="callback.css">
+  <script src="../labs/ratings-api.js" defer></script>
+  <script src="oauth.js" defer></script>
+  <script src="callback.js" defer></script>
+</head>
+<body>
+  <main class="auth-card">
+    <a class="brand" href="/#travel"><img src="../icon.svg" width="32" height="32" alt="">观潮</a>
+    <div class="auth-mark" aria-hidden="true">↗</div>
+    <p class="auth-eyebrow">一起去生活</p>
+    <h1 id="authTitle">正在完成登录</h1>
+    <p id="authStatus" role="status" aria-live="polite">稍等片刻，就能回到观潮。</p>
+    <a id="authReturn" class="auth-return" href="/#travel">返回观潮</a>
+    <p class="auth-footnote">电脑和手机 App 用户可在官网登录后，设置同一账号的 App 登录密码。</p>
+  </main>
+</body>
+</html>

@@ -1,6 +1,19 @@
 (function(root){
   'use strict';
   const maxPhoto=2*1024*1024,maxInput=30*1024*1024,maxDrafts=100;
+  const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  async function publicationAttempt(value,owner){
+    if(!uuid.test(owner)||typeof value?.id!=='string'||!/^[a-zA-Z0-9_-]{1,80}$/.test(value.id))throw Error('草稿或登录资料不正确。');
+    owner=owner.toLowerCase();
+    if(value.publishAttempt){const attempt=value.publishAttempt;if(!uuid.test(attempt.id)||!uuid.test(attempt.userId))throw Error('这次发布资料需要核对。');if(attempt.userId.toLowerCase()!==owner)throw Error('这张草稿有另一账号的发布待核对，请用原账号登录后重试。');return {id:attempt.id.toLowerCase(),userId:owner};}
+    let id=value.id.toLowerCase();
+    if(!uuid.test(id)){
+      if(!root.crypto?.subtle)throw Error('当前环境无法准备可靠的发布，请在正式网站或App中重试。');
+      const bytes=new Uint8Array(await root.crypto.subtle.digest('SHA-256',new TextEncoder().encode('guanchao-city-memory-v1:'+value.id)));
+      bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;const hex=Array.from(bytes.slice(0,16),n=>n.toString(16).padStart(2,'0')).join('');id=hex.slice(0,8)+'-'+hex.slice(8,12)+'-'+hex.slice(12,16)+'-'+hex.slice(16,20)+'-'+hex.slice(20);
+    }
+    return {id,userId:owner};
+  }
   function metadata(value){
     if(!value||typeof value.city!=='string'||!value.city.trim()||value.city.trim().length>80||typeof value.title!=='string'||!value.title.trim()||value.title.trim().length>120||typeof value.caption!=='string'||value.caption.length>1000||/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(value.city+value.title+value.caption))throw Error('请填写城市、1–120字的标题，以及1000字以内的感受。');
     return {city:value.city.trim(),title:value.title.trim(),caption:value.caption.trim()};
@@ -30,7 +43,7 @@
       throw Error('这张照片压缩后仍然过大，请换一张照片。');
     }catch(error){if(error.message==='The source image cannot be decoded.'||error.name==='EncodingError')throw Error('这台设备无法读取该照片格式，请导出为JPG、PNG或WebP再添加。');throw error;}finally{if(url)URL.revokeObjectURL(url);if(image)image.src='';}
   }
-  const core={metadata,photo,publicRow,createDraftDB,compressPhoto,maxPhoto,maxInput};if(typeof module==='object'&&module.exports)module.exports=core;root.GuanchaoMemories=core;if(!root.document)return;
+  const core={metadata,photo,publicRow,createDraftDB,compressPhoto,publicationAttempt,maxPhoto,maxInput};if(typeof module==='object'&&module.exports)module.exports=core;root.GuanchaoMemories=core;if(!root.document)return;
   const host=document.getElementById('cityMemories');if(!host)return;
   const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!=null)n.textContent=text;if(cls)n.className=cls;return n;};
   const button=(text,cls)=>{const b=node('button',text,cls);b.type='button';return b;};
@@ -38,7 +51,8 @@
   const header=node('header',null,'memory-heading'),heading=node('div');heading.append(node('p','YOUR CITY, YOUR MOMENT','memory-kicker'),node('h3','城市记忆'),node('p','一张照片，一段自己的感受。','memory-intro'));const add=button('＋ 留下一张照片','memory-add');header.append(heading,add);
   const search=node('form',null,'memory-search');search.setAttribute('role','search');const cityInput=node('input');cityInput.type='search';cityInput.maxLength=80;cityInput.required=true;cityInput.placeholder='搜索一座城市的照片';cityInput.setAttribute('aria-label','照片墙城市');const searchButton=node('button','看看这座城');searchButton.type='submit';search.append(cityInput,searchButton);
   const publicStatus=node('p',null,'memory-status');publicStatus.setAttribute('role','status');const publicGrid=node('div',null,'memory-grid');publicGrid.setAttribute('aria-label','城市公开照片');const more=button('再看一些照片','memory-more');more.hidden=true;
-  const localHeader=node('div',null,'memory-local-heading');const localTitle=node('h4','本机草稿');localHeader.append(localTitle,node('p','先留下来，准备好后再公开。'));const draftStatus=node('p',null,'memory-status');draftStatus.setAttribute('role','status');const draftGrid=node('div',null,'memory-grid memory-drafts');draftGrid.setAttribute('aria-label','保存在本机的照片草稿');host.append(header,search,publicStatus,publicGrid,more,localHeader,draftStatus,draftGrid);
+  const onlineQuota=node('p','在线照片名额：每天新增10张，累计200张。首次公开尝试预留名额；失败或删除不返还，同一草稿重试不重复占用。每天最多公开10张，本机草稿不占在线名额。','memory-hint');
+  const localHeader=node('div',null,'memory-local-heading');const localTitle=node('h4','本机草稿');localHeader.append(localTitle,node('p','先留下来，准备好后再公开。'));const draftStatus=node('p',null,'memory-status');draftStatus.setAttribute('role','status');const draftGrid=node('div',null,'memory-grid memory-drafts');draftGrid.setAttribute('aria-label','保存在本机的照片草稿');host.append(header,search,publicStatus,publicGrid,more,onlineQuota,localHeader,draftStatus,draftGrid);
   const editor=node('dialog',null,'memory-editor');editor.setAttribute('aria-label','编辑照片记忆');const form=node('form'),editorHead=node('div',null,'memory-dialog-heading'),editorTitle=node('h3','留下一张照片'),close=button('×','memory-close');close.setAttribute('aria-label','关闭照片编辑');editorHead.append(editorTitle,close);
   const fileLabel=node('label','选择照片','memory-file-label'),fileInput=node('input');fileInput.type='file';fileInput.accept='image/jpeg,image/png,image/webp,image/heic,image/heif';fileLabel.append(fileInput);const preview=node('img',null,'memory-preview');preview.alt='待保存照片预览';preview.hidden=true;
   const cityLabel=node('label','在哪座城市？'),draftCity=node('input');draftCity.maxLength=80;draftCity.required=true;draftCity.placeholder='例如：天津';cityLabel.append(draftCity);
@@ -60,10 +74,10 @@
     const info=node('div',null,'memory-card-info');info.append(node('p',row.city,'memory-card-city'),node('h5',row.title));if(row.caption)info.append(node('p',row.caption,'memory-card-caption'));
     const controls=node('div',null,'memory-card-actions');
     if(draft){
-      controls.append(node('span',row.publishedId?'已公开 · 本机副本':'仅本机','memory-draft-label'));
-      if(!row.publishedId){const edit=button('编辑');edit.onclick=()=>openEditor(row);const publish=button(publicBusy.has(row.id)?'正在公开…':ready()?(cloud().api.session?'公开发布':'登录后公开'):'公开发布');publish.disabled=publicBusy.has(row.id);publish.onclick=()=>publishDraft(row);controls.append(edit,publish);}
+      controls.append(node('span',row.publishedId?'已公开 · 本机副本':row.publishAttempt?'公开结果待核对':'仅本机','memory-draft-label'));
+      if(!row.publishedId){const edit=button('编辑');edit.disabled=!!row.publishAttempt;edit.title=row.publishAttempt?'请先核对这次公开结果':'';edit.onclick=()=>openEditor(row);const publish=button(publicBusy.has(row.id)?'正在公开…':ready()?(cloud().api.session?(row.publishAttempt?'核对并重试':'公开发布'):(row.publishAttempt?'登录后核对':'登录后公开')):'公开发布');publish.disabled=publicBusy.has(row.id);publish.onclick=()=>publishDraft(row);controls.append(edit,publish);}
       const exportPhoto=button('导出');exportPhoto.onclick=()=>exportDraft(row);const remove=button('删除草稿');remove.onclick=async()=>{try{await db.remove(row.id);publishedThisRun.delete(row.id);await loadDrafts();}catch(e){draftStatus.textContent=e.message||'删除失败。';}};controls.append(exportPhoto,remove);
-    }else if(cloud()?.api?.session?.user?.id===row.user_id){const remove=button('删除我的照片');remove.onclick=async()=>{if(!confirm('删除你公开的这张照片？'))return;remove.disabled=true;try{const result=await cloud().api.deleteMemory(row);rows=rows.filter(r=>r.id!==row.id);renderPublic();state(result?.message||'你的照片已从公开墙删除。',result?.photoRemoved===false);const local=allDrafts.find(d=>d.publishedId===row.id);if(local){delete local.publishedId;publishedThisRun.delete(local.id);await db.put(local);await loadDrafts();}}catch(e){state(e.message||'删除失败。',true);}finally{remove.disabled=false;}};controls.append(remove);}
+    }else if(cloud()?.api?.session?.user?.id===row.user_id){const remove=button('删除我的照片');remove.onclick=async()=>{if(!confirm('删除你公开的这张照片？'))return;remove.disabled=true;try{const result=await cloud().api.deleteMemory(row);rows=rows.filter(r=>r.id!==row.id);renderPublic();state(result?.message||'你的照片已从公开墙删除。',result?.photoRemoved===false);const local=allDrafts.find(d=>d.publishedId===row.id);if(local){delete local.publishedId;if(result?.photoRemoved)delete local.publishAttempt;publishedThisRun.delete(local.id);await db.put(local);await loadDrafts();}}catch(e){state(e.message||'删除失败。',true);}finally{remove.disabled=false;}};controls.append(remove);}
     info.append(controls);article.append(open,info);return article;
   }
   function renderPublic(){publicGrid.replaceChildren();if(!rows.length){empty(publicGrid,!ready()?'公开照片墙等待接通，先留下自己的照片。':selectedCity?'这座城市还没有公开照片，等你留下第一张。':'选择一座城市，看看大家留下的照片。');return;}for(const r of rows)publicGrid.append(card(r,false));}
@@ -82,15 +96,15 @@
   search.onsubmit=e=>{e.preventDefault();if(search.reportValidity())chooseCity(cityInput.value);};more.onclick=()=>{if(!loading)loadPublic(false);};
   function cleanupEditor(){imageRevision++;currentBlob=null;compressing=false;if(previewURL){URL.revokeObjectURL(previewURL);previewURL=null;}preview.removeAttribute('src');preview.hidden=true;}
   function setPreview(blob){if(previewURL)URL.revokeObjectURL(previewURL);previewURL=URL.createObjectURL(blob);preview.src=previewURL;preview.hidden=false;}
-  function openEditor(row=null){cleanupEditor();editId=row?.id||null;editorTitle.textContent=row?'编辑本机草稿':'留下一张照片';draftCity.value=row?.city||selectedCity;draftTitle.value=row?.title||'';caption.value=row?.caption||'';fileInput.value='';editorStatus.textContent='';save.disabled=false;if(row){currentBlob=row.blob;setPreview(row.blob);}editor.showModal();}
+  function openEditor(row=null){if(row?.publishAttempt&&!row.publishedId){draftStatus.textContent='请先核对这张照片的公开结果，再修改草稿。';return;}cleanupEditor();editId=row?.id||null;editorTitle.textContent=row?'编辑本机草稿':'留下一张照片';draftCity.value=row?.city||selectedCity;draftTitle.value=row?.title||'';caption.value=row?.caption||'';fileInput.value='';editorStatus.textContent='';save.disabled=false;if(row){currentBlob=row.blob;setPreview(row.blob);}editor.showModal();}
   add.onclick=()=>openEditor();close.onclick=cancel.onclick=()=>{if(!saving)editor.close();};editor.addEventListener('close',cleanupEditor);
   fileInput.onchange=async()=>{const file=fileInput.files[0];if(!file)return;const rev=++imageRevision;currentBlob=null;if(previewURL){URL.revokeObjectURL(previewURL);previewURL=null;}preview.hidden=true;preview.removeAttribute('src');compressing=true;save.disabled=true;editorStatus.textContent='正在整理照片…';try{const result=await compressPhoto(file);if(rev!==imageRevision)return;currentBlob=result.blob;setPreview(currentBlob);editorStatus.textContent=result.width+' × '+result.height+' · '+Math.ceil(result.blob.size/1024)+'KB · 已移除原始元数据';}catch(e){if(rev===imageRevision)editorStatus.textContent=e.message||'照片读取失败。';}finally{if(rev===imageRevision){compressing=false;save.disabled=false;}}};
   form.onsubmit=async e=>{e.preventDefault();if(saving||compressing)return;if(!db){editorStatus.textContent='当前环境无法保存本机草稿。';return;}let data;try{data=metadata({city:draftCity.value,title:draftTitle.value,caption:caption.value});photo(currentBlob);}catch(error){editorStatus.textContent=error.message;return;}saving=true;save.disabled=true;const old=allDrafts.find(d=>d.id===editId),record={id:editId||(crypto.randomUUID?.()||'photo-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10)),...data,blob:currentBlob,createdAt:old?.createdAt||Date.now(),updatedAt:Date.now()};try{await db.put(record);editor.close();await loadDrafts();draftStatus.textContent='草稿已保存在本机，尚未公开。';}catch(error){editorStatus.textContent=error.message||'草稿没有保存成功，请检查剩余空间。';}finally{saving=false;save.disabled=false;}};
   async function publishDraft(row){
     if(publicBusy.has(row.id))return;if(!ready()){state('公开照片墙尚未开通，这张照片仍安全保留在本机草稿。');return;}if(!cloud().api.session){cloud().requestLogin?.();return;}
     publicBusy.add(row.id);renderDrafts();draftStatus.textContent='正在公开这张照片…';
-    try{const post=publicRow(await cloud().api.publishMemory(metadata(row),row.blob));row.publishedId=post.id;publishedThisRun.set(row.id,post.id);let retained=true;try{await db.put(row);}catch{retained=false;}await loadDrafts();draftStatus.textContent=retained?'照片已公开到'+row.city+'的城市记忆。':'照片已公开，但本机状态未能保存，请勿重复发布。';if(cityKey(row.city)===cityKey(selectedCity))await loadPublic(true);}
-    catch(error){draftStatus.textContent=error.message||'发布失败，本机草稿已保留。';}finally{publicBusy.delete(row.id);renderDrafts();}
+    try{const retry=!!row.publishAttempt;row.publishAttempt=await publicationAttempt(row,cloud().api.session.user.id);await db.put(row);const post=publicRow(await cloud().api.publishMemory(metadata(row),row.blob,{id:row.publishAttempt.id,retry}));row.publishedId=post.id;publishedThisRun.set(row.id,post.id);let retained=true;try{await db.put(row);}catch{retained=false;}await loadDrafts();draftStatus.textContent=retained?'照片已公开到'+row.city+'的城市记忆。':'照片已公开，但本机状态未能保存，请勿重复发布。';if(cityKey(row.city)===cityKey(selectedCity))await loadPublic(true);}
+    catch(error){if(error.memoryOutcome==='not_committed'){delete row.publishAttempt;try{await db.put(row);}catch{}}draftStatus.textContent=error.message||'发布失败，本机草稿已保留。';}finally{publicBusy.delete(row.id);renderDrafts();}
   }
   function cloudChanged(){renderDrafts();renderPublic();loadPublic(true);}
   addEventListener('guanchao:cloud-ready',cloudChanged);addEventListener('guanchao:cloud-auth',cloudChanged);addEventListener('guanchao:cloud-sessionChanged',cloudChanged);Promise.resolve(cloud()?.configReadyPromise||cloud()?.readyPromise).then(cloudChanged).catch(()=>cloudChanged());

@@ -1,5 +1,6 @@
 {
-  "enabled": false,
-  "supabaseUrl": "",
-  "publishableKey": ""
+  "configurationVersion": 1,
+  "enabled": true,
+  "supabaseUrl": "https://yoqwbpekwuimzdjxtxxw.supabase.co",
+  "publishableKey": "sb_publishable_Dy_iC7_ygmi3ye09XzRmVA_qOBPqz7m"
 }
