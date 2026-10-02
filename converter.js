@@ -43,7 +43,72 @@ function selectTool(t){if(busy){G.toast('当前任务完成或取消后可选择
 function updateNotice(){$('conversionNotice').textContent=serviceAvailable()?'已连接完整引擎，自动模式优先使用服务。'+(window.guanchao?' 文件只在本机处理。':' 文件将发送到设置中的服务。'):localAvailable()?'可在当前设备直接处理，文件不会上传。'+(tool.id==='pdf-word'?' 设备版提取可编辑文字；扫描件需 Windows OCR。':''):'此工具需要完整转换引擎，请使用 Windows 客户端，或在设置中连接自己的服务。';}
 function addFiles(list){if(busy)return;files=[...files,...Array.from(list)];if(files.length>100){files=files.slice(0,100);G.toast('一次最多选择100个文件');}renderFiles();}function renderFiles(){$('selectedFiles').replaceChildren();files.forEach((f,i)=>{const row=node('div',null,'selected-file');row.append(node('span',(i+1)+'. '+f.name),node('small',bytes(f.size)));const b=node('button','×');b.type='button';b.setAttribute('aria-label','移除 '+f.name);b.onclick=()=>{if(!busy){files.splice(i,1);renderFiles();}};row.append(b);$('selectedFiles').append(row);});}$('inputFiles').onchange=e=>{addFiles(e.target.files);e.target.value='';};for(const name of ['dragenter','dragover'])$('dropzone').addEventListener(name,e=>{e.preventDefault();$('dropzone').classList.add('dragging');});$('dropzone').ondragleave=()=>$('dropzone').classList.remove('dragging');$('dropzone').ondrop=e=>{e.preventDefault();$('dropzone').classList.remove('dragging');addFiles(e.dataTransfer.files);};
 function options(){const o={};document.querySelectorAll('[data-option]').forEach(e=>{if(e.value!=='')o[e.dataset.option]=e.value;});if(!o.format)o.format=tool.outputs[0];if(o.selected)o.selected=o.selected.split(/[;；]/).map(s=>s.trim()).filter(Boolean);return o;}
-function check(task){if(task.cancelled)throw Error('任务已取消');}async function step(task,p,message){check(task);task.progress=p;task.message=message;renderTask(task);await yieldUI();}function renderTask(task){if(!task.element){const r=node('article',null,'job-row'),h=node('h3',task.title),p=node('p'),bar=node('progress'),actions=node('div',null,'job-actions');bar.max=1;r.append(h,p,bar,actions);task.element=r;task.messageEl=p;task.bar=bar;task.actions=actions;if(tasks.length===1)$('jobList').replaceChildren();$('jobList').prepend(r);}task.element.classList.toggle('failed',task.status==='failed');task.messageEl.textContent=task.message+(task.warnings?.length?' · '+task.warnings.join(' '):'');task.bar.hidden=task.status!=='running'&&task.status!=='waiting';if(task.progress==null)task.bar.removeAttribute('value');else task.bar.value=task.progress;task.actions.replaceChildren();if(['waiting','running'].includes(task.status)){const b=node('button','取消任务');b.onclick=async()=>{task.cancelled=true;if(task.serviceId)try{await fetch(task.serviceURL+'/api/jobs/'+task.serviceId,{method:'DELETE'});}catch{};task.message='正在取消…';renderTask(task);};task.actions.append(b);}else if(task.status==='completed'){task.outputs.forEach((output,i)=>{const b=node('button','保存 '+output.name+' · '+bytes(output.size));b.onclick=async()=>{try{if(output.blob)await G.saveBlob(output.blob,output.name);else if(window.guanchao){const r=await window.guanchao.request('native-export',{jobId:task.serviceId,outputIndex:i});if(!r.ok)throw Error(r.error);if(r.cancelled)G.toast('已取消保存');else G.toast('文件已导出');}else if(G.native&&output.size<=200*1024*1024){const r=await G.native.downloadFile({url:task.serviceURL+output.url,fileName:output.name,mime:output.mime});G.toast(r?.saved==='downloads'?'已保存到下载目录':r?.saved==='cancelled'?'已取消保存':r?.saved==='shared'?'已完成文件分享':'已打开文件分享');}else{const r=await fetch(task.serviceURL+output.url);if(!r.ok)throw Error('输出文件已过期，请重新转换');await G.saveBlob(await r.blob(),output.name);}}catch(e){G.toast(e.message||'保存失败');}};task.actions.append(b);});}G.updateTask(task);}
+function check(task){if(task.cancelled)throw Error('任务已取消');}
+async function step(task,p,message){check(task);task.progress=p;task.message=message;renderTask(task);await yieldUI();}
+function saveMessage(result,name){
+ const saved=result?.saved;
+ if(saved==='cancelled')return '已取消保存，'+name+' 仍在这里，可以重新下载。';
+ if(saved==='file')return '已保存 '+(result.fileName||name)+'，请到刚才选择的文件夹查看。';
+ if(saved==='downloads')return '已保存 '+name+'，请到设备的下载目录查看。';
+ if(saved==='shared')return '已完成 '+name+' 的分享。';
+ if(saved==='download-requested')return '已请求下载 '+name+'。请查看浏览器的下载列表；未出现文件时，可选择保存位置，或在 Chrome / Edge / Safari 中打开本页重试。';
+ return '已打开文件分享，请选择“存储到文件”或保存位置。';
+}
+async function saveOutput(task,output,index,status,chooseLocation=false){
+ status.textContent=chooseLocation?'请在保存窗口选择文件夹。如果没有弹出窗口，可点击下载，或在 Chrome / Edge / Safari 中打开本页。':'正在准备保存 '+output.name+'…';
+ try{
+  let result;
+  if(output.blob)result=await G.saveBlob(output.blob,output.name,{chooseLocation});
+  else if(window.guanchao){const response=await window.guanchao.request('native-export',{jobId:task.serviceId,outputIndex:index});if(!response.ok)throw Error(response.error||'导出失败');result={saved:response.cancelled?'cancelled':'file',fileName:output.name};}
+  else if(G.native&&output.size<=200*1024*1024)result=await G.native.downloadFile({url:task.serviceURL+output.url,fileName:output.name,mime:output.mime});
+  else{const response=await fetch(task.serviceURL+output.url);if(!response.ok)throw Error('输出文件已过期，请重新转换');result=await G.saveBlob(await response.blob(),output.name);}
+  status.textContent=saveMessage(result,output.name);
+ }catch(error){status.textContent='保存未完成：'+(error.message||'请重试')+'。转换结果仍在这里。';G.toast(error.message||'保存失败');}
+}
+function renderTask(task){
+ if(!task.element){
+  const row=node('article',null,'job-row'),title=node('h3',task.title),message=node('p'),bar=node('progress'),actions=node('div',null,'job-actions'),saveStatus=node('p',null,'job-save-status');
+  bar.max=1;row.tabIndex=-1;saveStatus.setAttribute('role','status');saveStatus.setAttribute('aria-live','polite');row.append(title,message,bar,actions,saveStatus);
+  Object.assign(task,{element:row,titleEl:title,messageEl:message,bar,actions,saveStatus});
+  if(tasks.length===1)$('jobList').replaceChildren();$('jobList').prepend(row);
+ }
+ task.element.classList.toggle('failed',task.status==='failed');task.element.classList.toggle('completed',task.status==='completed');
+ task.titleEl.textContent=(task.status==='completed'?'转换完成 · ':task.status==='failed'?'未能转换 · ':'')+task.title;
+ task.messageEl.textContent=task.message+(task.warnings?.length?' · '+task.warnings.join(' '):'');
+ task.bar.hidden=!['running','waiting'].includes(task.status);if(task.progress==null)task.bar.removeAttribute('value');else task.bar.value=task.progress;
+ if(task.actionsStatus!==task.status){
+  task.actionsStatus=task.status;task.actions.replaceChildren();
+  if(['waiting','running'].includes(task.status)){
+   const cancel=node('button','取消任务');cancel.type='button';cancel.onclick=async()=>{task.cancelled=true;if(task.serviceId)try{await fetch(task.serviceURL+'/api/jobs/'+task.serviceId,{method:'DELETE'});}catch{}task.message='正在取消…';renderTask(task);};task.actions.append(cancel);
+  }else if(task.status==='completed'){
+   task.saveStatus.textContent='已生成 '+task.outputs.length+' 个文件，请点击下载或选择保存位置。关闭、刷新页面会清除尚未保存的结果。';
+   task.outputs.forEach((output,index)=>{
+    const file=node('div',null,'result-file'),details=node('div',null,'result-file-details'),actions=node('div',null,'result-file-actions');
+    details.append(node('strong',output.name),node('small',bytes(output.size)));file.append(details,actions);task.actions.append(file);
+    const label='下载 '+(output.name.toLowerCase().endsWith('.docx')?'Word 文件':output.name);
+    if(output.blob&&!window.guanchao&&!G.native){
+     output.downloadURL=output.downloadURL||URL.createObjectURL(output.blob);
+     const link=node('a',label,'result-download');link.href=output.downloadURL;link.download=output.name;link.onclick=()=>{task.saveStatus.textContent=saveMessage({saved:'download-requested'},output.name);};actions.append(link);
+     if(typeof window.showSaveFilePicker==='function'){
+      const picker=node('button','选择保存位置');picker.type='button';picker.onclick=()=>saveOutput(task,output,index,task.saveStatus,true);actions.append(picker);
+     }
+     const shareFile=new File([output.blob],output.name,{type:output.mime||'application/octet-stream'});
+     if(navigator.canShare?.({files:[shareFile]})){
+      const share=node('button','保存 / 分享');share.type='button';share.onclick=async()=>{try{await navigator.share({files:[shareFile]});task.saveStatus.textContent='已完成分享；如要保留文件，请在分享面板选择保存到文件。';}catch(error){task.saveStatus.textContent=error.name==='AbortError'?'已取消分享，文件仍可下载。':'分享未完成，请点击下载保存。';}};actions.append(share);
+     }
+    }else{
+     const save=node('button',G.native?'保存 / 分享文件':label,'result-download');save.type='button';save.onclick=()=>saveOutput(task,output,index,task.saveStatus);actions.append(save);
+    }
+   });
+  }
+ }
+ if(['completed','failed','cancelled'].includes(task.status)&&!task.resultPresented){
+  task.resultPresented=true;task.element.focus({preventScroll:true});task.element.scrollIntoView({block:'center',behavior:'instant'});
+  if(task.status==='completed')G.toast('转换完成，请在结果卡片下载文件');
+ }
+ G.updateTask(task);
+}
+
 function output(name,data,mime){const blob=data instanceof Blob?data:new Blob([data],{type:mime||'application/octet-stream'});return {name:cleanName(name),size:blob.size,mime:blob.type,blob};}
 async function serviceConvert(task,list,o){task.serviceURL=G.serviceURL;const form=new FormData();form.append('kind',tool.id);form.append('options',JSON.stringify(o));list.forEach(f=>form.append('files',f,f.name));task.progress=null;task.message='正在传送文件给转换引擎';renderTask(task);const r=await fetch(task.serviceURL+'/api/jobs',{method:'POST',body:form});const data=await r.json();if(!r.ok)throw Error(typeof data.detail==='string'?data.detail:'引擎无法接收文件');task.serviceId=data.id;do{if(task.cancelled){await fetch(task.serviceURL+'/api/jobs/'+data.id,{method:'DELETE'});throw Error('任务已取消');}const response=await fetch(task.serviceURL+'/api/jobs/'+data.id);if(!response.ok)throw Error('任务连接中断，请检查转换服务');const j=await response.json();task.status=j.status;task.progress=j.progress;task.message=j.message;task.warnings=j.warnings;task.outputs=j.outputs||[];renderTask(task);if(j.status==='failed')throw Error(j.message);if(j.status==='cancelled')throw Error('任务已取消');if(j.status==='completed')return;await new Promise(r=>setTimeout(r,700));}while(true);}
 function pages(text,count){if(!String(text||'').trim())return Array.from({length:count},(_,i)=>i);const set=new Set();for(const part of String(text).trim().split(/[,，\s]+/)){if(!/^\d+(?:-\d+)?$/.test(part))throw Error('页码格式应为 1-3,5');const[a,b=a]=part.split('-').map(Number);if(a<1||b>count||a>b)throw Error('页码超出范围');for(let n=a;n<=b;n++)set.add(n-1);}return [...set];}
