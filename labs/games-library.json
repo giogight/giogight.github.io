@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "version": "2026-10-01.1",
-  "checkedAt": "2026-10-01",
+  "version": "2026-10-02.1",
+  "checkedAt": "2026-10-02",
   "sourceNotes": [
     "玩家人数按具体玩法、平台和好友组局匹配，不把整场对局人数当作好友预组上限。",
     "single/solo表示可独自进行真实玩法；联网单人不等于离线。",
@@ -9,7 +9,7 @@
     "免费为本体免费或可免费入门；会员、DLC、好友通行证、免费首章另作说明。",
     "手机按所列iOS国服/国际商店版本收录；没有独立证据时不声称Android可用或跨服互通。",
     "跨平台与Switch2兼容不根据相同游戏名称推断；Switch2版旷野/王泪合并平台，马车世界/蕉力全开是Switch2专用。",
-    "资料为2026-10-01公开官方页面快照，后续更新需要再次核对；官方URL可能随商店地区跳转。"
+    "来源按每条sources.checkedAt保留核对日期；最近增量核对为2026-10-02，不表示全库同日重查。官方URL可能随商店地区跳转。"
   ],
   "games": [
     {
@@ -15132,6 +15132,298 @@
           "checkedAt": "2026-10-01",
           "evidence": [
             "China publisher official site"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "steam-3280350",
+      "name": "死亡搁浅2：冥滩之上",
+      "aliases": [
+        "DEATH STRANDING 2: ON THE BEACH",
+        "死亡搁浅2"
+      ],
+      "min": 1,
+      "max": 1,
+      "platforms": [
+        "pc",
+        "ps"
+      ],
+      "time": 90,
+      "moods": [
+        "solo"
+      ],
+      "free": [],
+      "easy": false,
+      "url": "https://store.steampowered.com/app/3280350/",
+      "desc": "运送物资、探索澳大利亚荒野，继续山姆的连接之旅。",
+      "note": "PC为Windows原生版本，PlayStation为PS5版本；剧情为单人。异步连接系统不计作好友实时组队；90分钟是建议预留时间。",
+      "solo": true,
+      "nintendo": false,
+      "modes": [
+        {
+          "platforms": [
+            "pc"
+          ],
+          "type": "solo",
+          "min": 1,
+          "max": 1,
+          "moods": [
+            "solo"
+          ],
+          "note": "Windows单人剧情；异步互动不作为多人组队"
+        },
+        {
+          "platforms": [
+            "ps"
+          ],
+          "type": "solo",
+          "min": 1,
+          "max": 1,
+          "moods": [
+            "solo"
+          ],
+          "note": "PS5单人剧情；异步互动不作为多人组队"
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://store.steampowered.com/api/appdetails?appids=3280350&l=english&cc=US",
+          "kind": "Steam official store API",
+          "checkedAt": "2026-10-02",
+          "evidence": [
+            "type=game; coming_soon=false; released Mar 19, 2026; Windows=true; category Single-player; is_free=false"
+          ]
+        },
+        {
+          "url": "https://www.playstation.com/en-us/games/death-stranding-2-on-the-beach/",
+          "kind": "PlayStation official",
+          "checkedAt": "2026-10-02",
+          "evidence": [
+            "PS5 edition; 1 player; Buy now on PS5 and PC; Social Strand System is asynchronous interaction"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nintendo-pokemon-legends-z-a",
+      "name": "宝可梦传说 Z-A",
+      "aliases": [
+        "Pokémon Legends: Z-A",
+        "Pokemon Legends Z-A",
+        "宝可梦ZA"
+      ],
+      "min": 1,
+      "max": 4,
+      "platforms": [
+        "switch",
+        "switch2"
+      ],
+      "time": 60,
+      "moods": [
+        "solo",
+        "competitive"
+      ],
+      "free": [],
+      "easy": false,
+      "url": "https://www.nintendo.com/us/store/products/pokemon-legends-z-a-switch/",
+      "desc": "在密阿雷市捕捉宝可梦、体验即时战斗，也能约朋友对战。",
+      "note": "Switch版与Switch 2 Edition原生版合并为一个作品。单台主机1人；本地无线2–4人，各自使用主机；联网对战2–4人，需Nintendo Switch Online。跨版本联机按官方说明确认，60分钟是建议预留时间。",
+      "solo": true,
+      "nintendo": true,
+      "modes": [
+        {
+          "platforms": [
+            "switch"
+          ],
+          "type": "solo",
+          "min": 1,
+          "max": 1,
+          "moods": [
+            "solo"
+          ],
+          "note": "单台主机单人冒险"
+        },
+        {
+          "platforms": [
+            "switch"
+          ],
+          "type": "local",
+          "min": 2,
+          "max": 4,
+          "moods": [
+            "competitive"
+          ],
+          "note": "本地无线对战；每人使用自己的主机，单台主机仅1人",
+          "localKind": "wireless"
+        },
+        {
+          "platforms": [
+            "switch"
+          ],
+          "type": "online",
+          "min": 2,
+          "max": 4,
+          "moods": [
+            "competitive"
+          ],
+          "note": "联网对战；Nintendo Switch Online与任天堂账号要求见官方"
+        },
+        {
+          "platforms": [
+            "switch2"
+          ],
+          "type": "solo",
+          "min": 1,
+          "max": 1,
+          "moods": [
+            "solo"
+          ],
+          "note": "单台主机单人冒险"
+        },
+        {
+          "platforms": [
+            "switch2"
+          ],
+          "type": "local",
+          "min": 2,
+          "max": 4,
+          "moods": [
+            "competitive"
+          ],
+          "note": "本地无线对战；每人使用自己的主机，单台主机仅1人",
+          "localKind": "wireless"
+        },
+        {
+          "platforms": [
+            "switch2"
+          ],
+          "type": "online",
+          "min": 2,
+          "max": 4,
+          "moods": [
+            "competitive"
+          ],
+          "note": "联网对战；Nintendo Switch Online与任天堂账号要求见官方"
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://www.nintendo.com/us/store/products/pokemon-legends-z-a-switch/",
+          "kind": "Nintendo official",
+          "checkedAt": "2026-10-02",
+          "evidence": [
+            "Nintendo Switch native edition; released October 16, 2025; Single system (1); Local wireless (2-4); Online (2-4)"
+          ]
+        },
+        {
+          "url": "https://www.nintendo.com/us/store/products/pokemon-legends-z-a-nintendo-switch-2-edition-switch-2/",
+          "kind": "Nintendo official",
+          "checkedAt": "2026-10-02",
+          "evidence": [
+            "Nintendo Switch 2 Edition native software, not only backward compatibility; released October 16, 2025; Single system (1); Local wireless (2-4); Online (2-4)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ps-ghost-of-yotei",
+      "name": "羊蹄山战鬼 Ghost of Yōtei",
+      "aliases": [
+        "Ghost of Yotei",
+        "羊蹄山之魂",
+        "羊蹄山戰鬼"
+      ],
+      "min": 1,
+      "max": 4,
+      "platforms": [
+        "ps"
+      ],
+      "time": 90,
+      "moods": [
+        "solo",
+        "coop"
+      ],
+      "free": [],
+      "easy": false,
+      "url": "https://www.playstation.com/en-us/games/ghost-of-yotei/",
+      "desc": "独自探索虾夷的复仇旅程，或与朋友合作挑战奇谭。",
+      "note": "收录PS5原生版本。主线单人；奇谭剧情任务2人、生存模式2–4人、强袭任务4人。奇谭需本体、1.5或后续补丁，联网多人需PS Plus；免费更新不等于本体免费。90分钟是建议预留时间。",
+      "solo": true,
+      "nintendo": false,
+      "modes": [
+        {
+          "platforms": [
+            "ps"
+          ],
+          "type": "solo",
+          "min": 1,
+          "max": 1,
+          "moods": [
+            "solo"
+          ],
+          "note": "PS5单人主线"
+        },
+        {
+          "platforms": [
+            "ps"
+          ],
+          "type": "online",
+          "min": 2,
+          "max": 2,
+          "moods": [
+            "coop"
+          ],
+          "note": "奇谭Story：双人剧情任务；需本体、更新与PS Plus"
+        },
+        {
+          "platforms": [
+            "ps"
+          ],
+          "type": "online",
+          "min": 2,
+          "max": 4,
+          "moods": [
+            "coop"
+          ],
+          "note": "奇谭Survival：与最多三位朋友合作；需本体、更新与PS Plus"
+        },
+        {
+          "platforms": [
+            "ps"
+          ],
+          "type": "online",
+          "min": 4,
+          "max": 4,
+          "moods": [
+            "coop"
+          ],
+          "note": "奇谭Incursion：四人强袭；需完成对应剧情任务解锁"
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://www.playstation.com/en-us/games/ghost-of-yotei/",
+          "kind": "PlayStation official",
+          "checkedAt": "2026-10-02",
+          "evidence": [
+            "Available on PS5; 1 player; online co-op for 2-4 players; PS Plus required; original release October 2, 2025"
+          ]
+        },
+        {
+          "url": "https://www.playstation.com/en-us/games/ghost-of-yotei/legends/",
+          "kind": "PlayStation official",
+          "checkedAt": "2026-10-02",
+          "evidence": [
+            "Available via patch 1.5; free mode for owners of full game; Survival up to three other players; Story team up with another player; Incursion four-player assault; play with up to three friends; PS Plus required"
+          ]
+        },
+        {
+          "url": "https://www.playstation.com/zh-hant-hk/games/ghost-of-yotei/",
+          "kind": "PlayStation official Chinese",
+          "checkedAt": "2026-10-02",
+          "evidence": [
+            "Official traditional Chinese product title: 羊蹄山戰鬼"
           ]
         }
       ]
