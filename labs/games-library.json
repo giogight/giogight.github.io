@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "version": "2026-10-02.1",
-  "checkedAt": "2026-10-02",
+  "version": "2026-10-10.1",
+  "checkedAt": "2026-10-10",
   "sourceNotes": [
     "玩家人数按具体玩法、平台和好友组局匹配，不把整场对局人数当作好友预组上限。",
     "single/solo表示可独自进行真实玩法；联网单人不等于离线。",
@@ -9,7 +9,7 @@
     "免费为本体免费或可免费入门；会员、DLC、好友通行证、免费首章另作说明。",
     "手机按所列iOS国服/国际商店版本收录；没有独立证据时不声称Android可用或跨服互通。",
     "跨平台与Switch2兼容不根据相同游戏名称推断；Switch2版旷野/王泪合并平台，马车世界/蕉力全开是Switch2专用。",
-    "来源按每条sources.checkedAt保留核对日期；最近增量核对为2026-10-02，不表示全库同日重查。官方URL可能随商店地区跳转。"
+    "来源按每条sources.checkedAt保留核对日期；最近增量核对为2026-10-10，不表示全库同日重查。官方URL可能随商店地区跳转。"
   ],
   "games": [
     {
@@ -922,7 +922,8 @@
         "pc",
         "switch",
         "ps",
-        "mobile"
+        "mobile",
+        "switch2"
       ],
       "time": 90,
       "moods": [
@@ -934,7 +935,7 @@
       "easy": true,
       "url": "https://store.steampowered.com/app/413150/",
       "desc": "种田、钓鱼、经营农场，适合长期存档和慢慢积累。",
-      "note": "PC 为 Windows 商店版本；时间是建议预留时长，不是单局时长。 PlayStation收录版本：PS4；PS4版在PS5上的兼容性请核对官方。 手机收录iOS国际商店版本，可能需要相应地区账号；不默认Android/国服互通。手机版本条仅推荐单人；不与PC八人联机混用。",
+      "note": "PC 为 Windows 商店版本；时间是建议预留时长，不是单局时长。 PlayStation收录版本：PS4；PS4版在PS5上的兼容性请核对官方。 手机收录iOS国际商店版本，可能需要相应地区账号；不默认Android/国服互通。手机版本条仅推荐单人；不与PC八人联机混用。 已补充2025年12月25日发售的Switch 2 Edition原生版：同机分屏最多4人、本地无线最多4人、联网最多8人。GameShare仅为分享游玩，不推断Switch原版支持8人。升级包需拥有本体，免费升级不等于本体免费。",
       "solo": true,
       "nintendo": false,
       "modes": [
@@ -1052,6 +1053,60 @@
             "chill"
           ],
           "note": "本轮核实iOS国际商店版本；Android和中国区发行请另看官方"
+        },
+        {
+          "platforms": [
+            "switch2"
+          ],
+          "type": "solo",
+          "min": 1,
+          "max": 1,
+          "moods": [
+            "solo",
+            "chill"
+          ],
+          "note": "Switch 2 Edition原生版单人农场"
+        },
+        {
+          "platforms": [
+            "switch2"
+          ],
+          "type": "local",
+          "min": 2,
+          "max": 4,
+          "moods": [
+            "coop",
+            "chill"
+          ],
+          "note": "Switch 2 Edition同机分屏合作2至4人；各自需控制器",
+          "localKind": "same-system"
+        },
+        {
+          "platforms": [
+            "switch2"
+          ],
+          "type": "local",
+          "min": 2,
+          "max": 4,
+          "moods": [
+            "coop",
+            "chill"
+          ],
+          "note": "Switch 2 Edition本地无线合作2至4人；各自使用主机",
+          "localKind": "wireless"
+        },
+        {
+          "platforms": [
+            "switch2"
+          ],
+          "type": "online",
+          "min": 2,
+          "max": 8,
+          "moods": [
+            "coop",
+            "chill"
+          ],
+          "note": "Switch 2 Edition联网合作2至8人；Nintendo Switch Online与版本要求见官方"
         }
       ],
       "sources": [
@@ -1102,6 +1157,25 @@
             "Official seller: ConcernedApe LLC",
             "App Store price snapshot: 4.99",
             "Move to the countryside, and cultivate a new life in this award-winning open-ended farming RPG! With over 50+ hours of gameplay content and new Mobile-specific features, such as auto-save and multiple controls options.\n\n**Winner of the Golden Joysticks' Breakthrough Award**\n**Nominee of Game of the Year 2017 - BAFTA Games Awards**\n\n---\n\nBUILD THE FARM OF YOUR DREAMS:\n\n■ Turn your overgrown fields into a lively and bountiful farm\n\n■ Raise and breed happy animals, grow a variety of seasonal crops and design your farm, your way\n\n■ Customize your f"
+          ]
+        },
+        {
+          "url": "https://www.nintendo.com/us/store/products/stardew-valley-nintendo-switch-2-edition-switch-2/",
+          "kind": "Nintendo official product metadata",
+          "checkedAt": "2026-10-10",
+          "evidence": [
+            "Native Nintendo Switch 2 Edition; released December 25, 2025; Local wireless (1-4); Online (1-8); publisher says invite 1-7 other players.",
+            "Single-system metadata (1) is supplemented by explicit publisher split-screen specification in the official upgrade-pack listing."
+          ]
+        },
+        {
+          "url": "https://www.nintendo.com/us/store/products/stardew-valley-nintendo-switch-2-edition-upgrade-pack-switch-2/",
+          "kind": "Nintendo official publisher upgrade specification",
+          "checkedAt": "2026-10-10",
+          "evidence": [
+            "Nintendo Switch 2 Edition Upgrade Pack requires Stardew Valley base game; released December 25, 2025.",
+            "Local split-screen co-op supports up to four players; online multiplayer supports up to eight players.",
+            "GameShare supports up to three friends; this is not evidence for eight-player Switch-original native multiplayer."
           ]
         }
       ]
@@ -7052,7 +7126,9 @@
       "min": 1,
       "max": 1,
       "platforms": [
-        "pc"
+        "pc",
+        "switch",
+        "switch2"
       ],
       "time": 45,
       "moods": [
@@ -7062,7 +7138,7 @@
       "easy": false,
       "url": "https://store.steampowered.com/app/1145350/",
       "desc": "希腊神话动作闯关",
-      "note": "PC 为 Windows 商店版本；时间是建议预留时长，不是单局时长。",
+      "note": "PC 为 Windows 商店版本；时间是建议预留时长，不是单局时长。 已核实2025年9月25日发售的Switch原生版与Switch 2 Edition原生版，均为单人；Switch 2 Edition不是只按兼容运行收录。",
       "solo": true,
       "nintendo": false,
       "modes": [
@@ -7077,6 +7153,30 @@
             "solo"
           ],
           "note": "Steam正式单人玩法"
+        },
+        {
+          "platforms": [
+            "switch"
+          ],
+          "type": "solo",
+          "min": 1,
+          "max": 1,
+          "moods": [
+            "solo"
+          ],
+          "note": "Nintendo Switch原生版，单台主机1人"
+        },
+        {
+          "platforms": [
+            "switch2"
+          ],
+          "type": "solo",
+          "min": 1,
+          "max": 1,
+          "moods": [
+            "solo"
+          ],
+          "note": "Nintendo Switch 2 Edition原生版，单台主机1人"
         }
       ],
       "sources": [
@@ -7088,6 +7188,22 @@
             "Official name: Hades II",
             "Single-player category: True",
             "Windows support: true"
+          ]
+        },
+        {
+          "url": "https://www.nintendo.com/us/store/products/hades-ii-switch/",
+          "kind": "Nintendo official product metadata",
+          "checkedAt": "2026-10-10",
+          "evidence": [
+            "Nintendo Switch native software; released September 25, 2025; Single system (1)"
+          ]
+        },
+        {
+          "url": "https://www.nintendo.com/us/store/products/hades-ii-nintendo-switch-2-edition-switch-2/",
+          "kind": "Nintendo official product metadata",
+          "checkedAt": "2026-10-10",
+          "evidence": [
+            "Nintendo Switch 2 Edition native software; released September 25, 2025; enhanced Switch 2 features; Single system (1)"
           ]
         }
       ]
@@ -15424,6 +15540,264 @@
           "checkedAt": "2026-10-02",
           "evidence": [
             "Official traditional Chinese product title: 羊蹄山戰鬼"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "steam-499170",
+      "name": "Order of the Sinking Star",
+      "aliases": [
+        "沉星解谜",
+        "Jonathan Blow 新作"
+      ],
+      "min": 1,
+      "max": 1,
+      "platforms": [
+        "pc",
+        "switch2",
+        "ps"
+      ],
+      "time": 60,
+      "moods": [
+        "solo"
+      ],
+      "free": [],
+      "easy": false,
+      "url": "https://store.steampowered.com/app/499170/",
+      "desc": "在交织的世界中探索角色与机关，独自解开手工设计的谜题。",
+      "note": "2026年10月8日已发售；Windows、Nintendo Switch 2与PS5为原生版本。多个可操作角色不代表多人游戏，各平台均为单人；60分钟为建议预留时间。",
+      "solo": true,
+      "nintendo": false,
+      "modes": [
+        {
+          "platforms": [
+            "pc"
+          ],
+          "type": "solo",
+          "min": 1,
+          "max": 1,
+          "moods": [
+            "solo"
+          ],
+          "note": "Windows单人解谜"
+        },
+        {
+          "platforms": [
+            "switch2"
+          ],
+          "type": "solo",
+          "min": 1,
+          "max": 1,
+          "moods": [
+            "solo"
+          ],
+          "note": "Switch 2原生版，单台主机1人；不按Switch兼容游戏收录"
+        },
+        {
+          "platforms": [
+            "ps"
+          ],
+          "type": "solo",
+          "min": 1,
+          "max": 1,
+          "moods": [
+            "solo"
+          ],
+          "note": "PS5原生版，1人"
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://store.steampowered.com/api/appdetails?appids=499170&l=english&cc=US",
+          "kind": "Steam official store API",
+          "checkedAt": "2026-10-10",
+          "evidence": [
+            "type=game; coming_soon=false; released Oct 8, 2026; Windows=true; Single-player; is_free=false"
+          ]
+        },
+        {
+          "url": "https://www.nintendo.com/us/store/products/order-of-the-sinking-star-switch-2/",
+          "kind": "Nintendo official product metadata",
+          "checkedAt": "2026-10-10",
+          "evidence": [
+            "Native Nintendo Switch 2 software; released October 8, 2026; Single system (1)"
+          ]
+        },
+        {
+          "url": "https://store.playstation.com/en-us/concept/10017166/",
+          "kind": "PlayStation official store",
+          "checkedAt": "2026-10-10",
+          "evidence": [
+            "PS5 native version; 1 player; release 10/8/2026"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "steam-4078430",
+      "name": "STAR WARS: Galactic Racer",
+      "aliases": [
+        "STAR WARS: Galactic Racer™",
+        "星球大战赛车",
+        "银河赛车"
+      ],
+      "min": 1,
+      "max": 3,
+      "platforms": [
+        "pc",
+        "ps"
+      ],
+      "time": 45,
+      "moods": [
+        "solo",
+        "competitive"
+      ],
+      "free": [],
+      "easy": false,
+      "url": "https://store.steampowered.com/app/4078430/",
+      "desc": "驾驶星战飞行赛车，体验单人剧情或与朋友组队参加银河竞速。",
+      "note": "2026年10月6日已发售，收录Windows与PS5原生版本。目前好友预组最多3人；12/8是整场比赛人数，不能当作好友组队上限。扩至6人仍为未来更新计划。两人组队开新比赛时需再匹配一位队外玩家；没有同机分屏。PC与主机支持可关闭的跨平台联机，PS5联网需PS Plus；45分钟为建议预留时间。",
+      "solo": true,
+      "nintendo": false,
+      "modes": [
+        {
+          "platforms": [
+            "pc"
+          ],
+          "type": "solo",
+          "min": 1,
+          "max": 1,
+          "moods": [
+            "solo"
+          ],
+          "note": "单人剧情、Arcade及Scenarios；PC首次启动需联网认证"
+        },
+        {
+          "platforms": [
+            "pc"
+          ],
+          "type": "online",
+          "min": 2,
+          "max": 3,
+          "moods": [
+            "competitive"
+          ],
+          "note": "好友预组2至3人参加在线竞速，无法保证私人房间；两人队开新赛需匹配队外玩家"
+        },
+        {
+          "platforms": [
+            "ps"
+          ],
+          "type": "solo",
+          "min": 1,
+          "max": 1,
+          "moods": [
+            "solo"
+          ],
+          "note": "单人剧情、Arcade及Scenarios；PC首次启动需联网认证"
+        },
+        {
+          "platforms": [
+            "ps"
+          ],
+          "type": "online",
+          "min": 2,
+          "max": 3,
+          "moods": [
+            "competitive"
+          ],
+          "note": "好友预组2至3人参加在线竞速，无法保证私人房间；两人队开新赛需匹配队外玩家"
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://store.steampowered.com/api/appdetails?appids=4078430&l=english&cc=US",
+          "kind": "Steam official store API",
+          "checkedAt": "2026-10-10",
+          "evidence": [
+            "type=game; coming_soon=false; released Oct 6, 2026; Windows=true; Single-player; Online PvP; is_free=false"
+          ]
+        },
+        {
+          "url": "https://www.playstation.com/en-us/games/star-wars-galactic-racer/",
+          "kind": "PlayStation official product metadata",
+          "checkedAt": "2026-10-10",
+          "evidence": [
+            "PS5 native version; 1 player; PS Plus required for online play; release 10/6/2026; advertised 12 online racers is race size, not party size"
+          ]
+        },
+        {
+          "url": "https://steamcommunity.com/app/4078430/discussions/0/757303296993155447/",
+          "kind": "Official publisher developer-pinned Steam FAQ",
+          "checkedAt": "2026-10-10",
+          "evidence": [
+            "Pinned FAQ by secretmodemaddie [developer], updated Oct 6, 2026.",
+            "Current online parties: up to 3 players; 6 is planned for a future update, not released.",
+            "No split-screen; PC/console crossplay enabled by default and can be disabled.",
+            "A two-person party needs a third unique player outside the party to start a new race; race capacities 12/8 are distinct from party size."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "steam-2254990",
+      "name": "Permafrost",
+      "aliases": [
+        "永冻生存",
+        "冰封末日生存"
+      ],
+      "min": 1,
+      "max": 4,
+      "platforms": [
+        "pc"
+      ],
+      "time": 90,
+      "moods": [
+        "solo",
+        "coop"
+      ],
+      "free": [],
+      "easy": false,
+      "url": "https://store.steampowered.com/app/2254990/",
+      "desc": "在冰封末日中探索、搜集资源、建造庇护所，独自求生或分工合作。",
+      "note": "Windows版于2026年10月9日开启可游玩的付费抢先体验，尚不是正式完整发行版。可单人或与最多3位朋友在线合作，总共4人；没有核实同机或其他主机平台。90分钟为建议预留时间。",
+      "solo": true,
+      "nintendo": false,
+      "modes": [
+        {
+          "platforms": [
+            "pc"
+          ],
+          "type": "solo",
+          "min": 1,
+          "max": 1,
+          "moods": [
+            "solo"
+          ],
+          "note": "Windows单人求生；付费抢先体验"
+        },
+        {
+          "platforms": [
+            "pc"
+          ],
+          "type": "online",
+          "min": 2,
+          "max": 4,
+          "moods": [
+            "coop"
+          ],
+          "note": "Windows在线合作，可与最多3位朋友共同生存；总计4人"
+        }
+      ],
+      "sources": [
+        {
+          "url": "https://store.steampowered.com/api/appdetails?appids=2254990&l=english&cc=US",
+          "kind": "Steam official publisher description and API",
+          "checkedAt": "2026-10-10",
+          "evidence": [
+            "type=game; coming_soon=false; released Oct 9, 2026; Windows=true; Single-player; Online Co-op; is_free=false; genre Early Access.",
+            "Publisher describes solo or up to 3 friends, and SYMBIOTIC 1-4 PLAYER CO-OP SURVIVAL."
           ]
         }
       ]
