@@ -1,9 +1,21 @@
 {
-  "version": "0.3.0",
+  "version": "0.3.1",
   "website": "https://giogight.github.io/",
   "windows": {
-    "url": "https://github.com/giogight/giogight.github.io/releases/download/v0.3.0/Guanchao-Setup-0.3.0.exe",
-    "version": "0.3.0"
+    "url": "https://github.com/giogight/giogight.github.io/releases/download/v0.3.1/Guanchao-Setup-0.3.1.exe",
+    "version": "0.3.1 · 批量提稿离线版",
+    "parts": [
+      {
+        "name": "Guanchao-0.3.1-Offline.7z.001",
+        "label": "下载数据包 1/2（.001）",
+        "url": "https://github.com/giogight/giogight.github.io/releases/download/v0.3.1/Guanchao-0.3.1-Offline.7z.001"
+      },
+      {
+        "name": "Guanchao-0.3.1-Offline.7z.002",
+        "label": "下载数据包 2/2（.002）",
+        "url": "https://github.com/giogight/giogight.github.io/releases/download/v0.3.1/Guanchao-0.3.1-Offline.7z.002"
+      }
+    ]
   },
   "portable": {
     "url": "https://github.com/giogight/giogight.github.io/releases/download/v0.3.0/Guanchao-0.3.0-Windows-x64.zip",
@@ -14,7 +26,7 @@
     "version": "0.3.0 · 安装测试版"
   },
   "source": {
-    "url": "https://github.com/giogight/giogight.github.io/releases/download/v0.3.0/Guanchao-0.3.0-Source.zip",
-    "version": "0.3.0"
+    "url": "https://github.com/giogight/giogight.github.io/releases/download/v0.3.1/Guanchao-0.3.1-Source.zip",
+    "version": "0.3.1"
   }
 }
