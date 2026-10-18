@@ -6,6 +6,7 @@
   const STORAGE = 'gc-transcript-job-v1';
   const BATCH_STORAGE = 'gc-transcript-batch-v1';
   const PENDING_STORAGE = 'gc-transcript-batch-submit-v1';
+  const MEDIA_STORAGE = 'gc-transcript-media-submit-v1';
   const terminal = new Set(['completed', 'failed', 'cancelled', 'canceled']);
   const batchTerminal = new Set(['completed', 'partial', 'failed', 'cancelled', 'canceled']);
   const panel = document.getElementById('transcriptPanel') || page.appendChild(document.createElement('section'));
@@ -29,6 +30,10 @@
         <div id="transcriptTask" class="transcript-task" hidden><p id="transcriptStatus" role="status" aria-live="polite"></p><progress id="transcriptProgress" max="1" aria-label="文案提取进度"></progress></div>
         <section id="transcriptBatch" class="transcript-batch" hidden aria-label="按输入顺序排列的提取任务">
           <div class="transcript-batch-heading"><h3>本批任务</h3><span id="transcriptBatchCount" role="status"></span></div>
+          <div class="transcript-actions transcript-recovery-toolbar"><button type="button" id="transcriptBatchRecover" hidden>使用观潮内播放会话重试</button></div>
+          <section id="transcriptRecoveryConsent" class="transcript-recovery-consent" hidden aria-label="确认使用观潮内播放会话"><strong>按原编号继续提取</strong><p>会在观潮内打开本批对应的抖音视频，使用观潮内播放会话取得你能正常播放的媒体，再交给本机识别。不读取外部浏览器资料，不导出 Cookie。若需要登录或验证码，由你本人在观潮窗口完成；不能播放的视频仍保留失败原因。</p><div class="transcript-actions"><button type="button" id="transcriptRecoveryConfirm">确认并打开视频</button><button type="button" id="transcriptRecoveryDecline">暂不使用</button></div></section>
+          <div class="transcript-recovery-progress"><p id="transcriptRecoveryStatus" role="status" aria-live="polite"></p><div class="transcript-actions"><button type="button" id="transcriptRecoveryContinue" hidden>已能播放，继续检查</button><button type="button" id="transcriptRecoveryCancel" hidden>停止会话重试</button></div></div>
+          <p id="transcriptRecoveryHelp" class="transcript-batch-note" hidden></p>
           <ol id="transcriptBatchItems" class="transcript-batch-items"></ol>
           <div class="transcript-actions"><button type="button" id="transcriptBatchExport" disabled>保存全部 ZIP</button><button type="button" id="transcriptBatchRetry" hidden>重试失败项</button></div>
           <p class="transcript-batch-note">编号跟随输入顺序。单条失败不会打乱后面的编号，也不会补写文案。请选择一条查看原稿。</p>
@@ -51,6 +56,9 @@
   let jobService = '', pollTimer = null, polling = false, capRevision = 0, cancelling = false;
   let batch = null, batchService = '', batchPolling = false, batchTimer = null, selectedIndex = null, retrying = false;
   let pendingSubmission = null, pendingTimer = null, pendingPolling = false;
+  const mediaSubmissions = new Map();
+  let recovery = null, recoveryConsent = null;
+  let restoreRecoveryWanted = false, recoveryLookup = null, recoveryStateRevision = 0;
   const nativeTask = {title: '视频文案提取'};
 
   function serviceRoot(value) {
@@ -59,7 +67,13 @@
       return ['http:', 'https:'].includes(url.protocol) && !url.username && !url.password && url.pathname === '/' && !url.search && !url.hash ? url.origin : '';
     } catch { return ''; }
   }
-  function active() { return !!pendingSubmission || (batch ? !batchTerminal.has(batch.status) : !!current && !terminal.has(current.status)); }
+  function nativeRecoveryAvailable() { return location.protocol === 'file:' && window.guanchao?.transcriptPlaybackRecovery === true && typeof window.guanchao.request === 'function' && typeof window.guanchao.listen === 'function'; }
+  function failedItem(item) { return ['failed', 'cancelled', 'canceled'].includes(item.status); }
+  function linkItem(item) { return !!text(item.shareText) && item.source?.type !== 'upload'; }
+  function recoverableIndices() { return batch?.kind === 'links' ? (batch.items || []).filter(item => failedItem(item) && linkItem(item) && item.source?.platform === 'douyin').map(item => item.index) : []; }
+  function recovering() { return !!recovery?.active && recovery.id === batch?.id && recovery.root === batchService; }
+  function mediaActive() { return [...mediaSubmissions.values()].some(item => item.id === batch?.id && item.root === batchService); }
+  function active() { return !!pendingSubmission || recovering() || mediaActive() || (batch ? !batchTerminal.has(batch.status) : !!current && !terminal.has(current.status)); }
   function batchEnabled() { return caps?.batchAvailable === true; }
   function number(index) { return String(index).padStart(3, '0'); }
   function linkLines() { return $('transcriptShareText').value.split(/\r?\n/).map(value => value.trim()).filter(Boolean); }
@@ -77,6 +91,11 @@
     try { if (pendingSubmission) localStorage.setItem(PENDING_STORAGE, JSON.stringify(pendingSubmission)); else localStorage.removeItem(PENDING_STORAGE); } catch { /* Storage may be unavailable. */ }
   }
   function clearPending() { pendingSubmission = null; clearTimeout(pendingTimer); persistPending(); }
+  function persistMedia() {
+    try { if (mediaSubmissions.size) localStorage.setItem(MEDIA_STORAGE, JSON.stringify([...mediaSubmissions.values()].map(({id, root, index, requestId, name}) => ({id, root, index, requestId, name})))); else localStorage.removeItem(MEDIA_STORAGE); } catch { /* Storage may be unavailable. */ }
+  }
+  function currentMedia(index) { const item = mediaSubmissions.get(index); return item?.id === batch?.id && item.root === batchService ? item : null; }
+  function sameBatch(id, root) { return batch?.id === id && batchService === root; }
   function migrateNativeService() {
     // The desktop preload exists only on the packaged file page. A changed
     // loopback port belongs to its restarted service; remote jobs stay bound.
@@ -89,6 +108,10 @@
     const previous = pendingSubmission ? pendingSubmission.serviceURL : batch ? batchService : jobService;
     if (!next || next === previous || !loopback(next) || !loopback(previous)) return false;
     if (batch) batchService = next;
+    for (const item of mediaSubmissions.values()) if (item.id === batch?.id && item.root === previous) item.root = next;
+    persistMedia();
+    if (recovery?.root === previous) { recovery = null; recoveryConsent = null; $('transcriptRecoveryConsent').hidden = true; }
+    recoveryLookup = null; recoveryStateRevision++; restoreRecoveryWanted = !!batch;
     if (pendingSubmission) { pendingSubmission.serviceURL = next; persistPending(); }
     jobService = next;
     persist();
@@ -103,13 +126,14 @@
     $('transcriptHotwords').disabled = occupied;
     $('transcriptLinkMode').disabled = occupied;
     $('transcriptFileMode').disabled = occupied;
-    $('transcriptCancel').hidden = !!pendingSubmission || !active();
+    $('transcriptCancel').hidden = !!pendingSubmission || recovering() || mediaActive() || !active();
     $('transcriptAbandon').hidden = !pendingSubmission || submitting;
     $('transcriptCancel').disabled = cancelling;
     $('transcriptTryFile').hidden = occupied || !caps?.uploadAvailable || !(batch ? batch.items?.some(item => item.status === 'failed') : current?.status === 'failed');
     $('transcriptRecheck').disabled = checking;
     $('transcriptBatchRetry').disabled = occupied;
-    $('transcriptBatchExport').disabled = !batch || !batchTerminal.has(batch.status) || submitting || retrying;
+    $('transcriptBatchExport').disabled = !batch || !batchTerminal.has(batch.status) || submitting || retrying || recovering() || mediaActive();
+    refreshRecoveryControls();
   }
   function chooseMode(next) {
     if (submitting || active()) return;
@@ -133,7 +157,7 @@
     } else if (mode === 'file' && !caps.uploadAvailable) {
       $('transcriptCapability').textContent = '当前本机服务未开放文件上传，请使用视频链接，或更新电脑本机服务。';
     } else {
-      $('transcriptCapability').textContent = '本机引擎已就绪' + (text(caps.model) ? ' · ' + caps.model : '') + (batchEnabled() ? ' · 每批最多 20 条。排队复用同一个模型，保留输入顺序。' : ' · 当前服务仅支持单条，请更新电脑版以使用批量提取。') + '首次加载模型可能较慢；识别在电脑上完成，不调用付费转写服务。';
+      $('transcriptCapability').textContent = '本机引擎已就绪' + (text(caps.model) ? ' · ' + caps.model : '') + (batchEnabled() ? ' · 每批最多 20 条。排队复用同一个模型，保留输入顺序。' : ' · 当前服务仅支持单条，请更新电脑版以使用批量提取。') + '首次加载模型可能较慢；识别在电脑上完成，不调用付费转写服务。' + (mode === 'link' ? '抖音匿名链接经常受限；无法读取时，请先保存或取得本地视频，再给原编号补交。' : '');
     }
   }
   function previewInputs() {
@@ -189,6 +213,7 @@
     capabilityMessage();
     previewInputs();
     refreshControls();
+    lookupRecoveryState();
   }
   function timestamp(seconds, srt = false) {
     const total = Math.max(0, Math.round(Number(seconds) * 1000));
@@ -340,6 +365,94 @@
       else if (pendingSubmission) pendingTimer = setTimeout(findPendingBatch, 5000);
     }
   }
+  function refreshRecoveryControls() {
+    const eligible = recoverableIndices(), running = recovering(), native = nativeRecoveryAvailable();
+    $('transcriptBatchRecover').hidden = !native || !eligible.length || running;
+    $('transcriptBatchRecover').disabled = submitting || retrying || mediaActive() || !caps?.available;
+    $('transcriptRecoveryCancel').hidden = !running;
+    $('transcriptRecoveryContinue').hidden = !running || recovery.status !== 'awaiting-user' || !Number.isInteger(recovery.index);
+    const legacyUpload = batch && !['links', 'uploads'].includes(batch.kind) && batch.items?.some(item => failedItem(item) && linkItem(item));
+    $('transcriptRecoveryHelp').hidden = !eligible.length && !legacyUpload;
+    $('transcriptRecoveryHelp').textContent = legacyUpload ? '此服务未支持按编号补交，可改用“本地音视频”新建批次；原任务和编号保留。' : native ? '研究入口：播放会话尚未证明能稳定取得抖音媒体。可确认后尝试；没有取得视频时，请保存本地视频并补交。登录和验证码需要本人操作。' : '抖音匿名访问经常受限。请先保存或取得本地视频，再在原编号下补交；已连接的本地文件识别仍可用。';
+    if (!batch || recoveryConsent?.id !== batch.id || recoveryConsent.root !== batchService) $('transcriptRecoveryConsent').hidden = true;
+    for (const input of $('transcriptBatchItems').querySelectorAll('[data-transcript-media]')) {
+      const pending = currentMedia(Number(input.dataset.transcriptMedia));
+      input.disabled = !!pending || running || !caps?.uploadAvailable;
+      const button = input.parentElement.querySelector('.transcript-item-media-button');
+      if (button) button.disabled = input.disabled;
+    }
+  }
+  function applyRecoveryProgress(value, fromLookup = false) {
+    if (!value || !batch || batch.kind !== 'links' || value.batchId !== batch.id || typeof value.active !== 'boolean' || serviceRoot(value.serviceRoot) !== batchService || serviceRoot(G.serviceURL) !== batchService) return false;
+    if (!Number.isInteger(value.index) || !batch.items.some(item => item.index === value.index && item.source?.platform === 'douyin')) return false;
+    if (!recovery && !fromLookup && !recoveryLookup) return false;
+    if (recovery && !sameBatch(recovery.id, recovery.root)) return false;
+    recoveryStateRevision++; recoveryLookup = null; restoreRecoveryWanted = false;
+    if (!recovery) recovery = {id: batch.id, root: batchService};
+    Object.assign(recovery, {active: value.active, status: text(value.status), index: value.index});
+    $('transcriptRecoveryStatus').textContent = number(value.index) + ' · ' + text(value.message).slice(0, 800);
+    $('transcriptRecoveryContinue').disabled = false; $('transcriptRecoveryCancel').disabled = false;
+    refreshControls(); pollBatch(); scheduleBatchPoll();
+    return true;
+  }
+  async function lookupRecoveryState() {
+    if (!restoreRecoveryWanted || !nativeRecoveryAvailable() || !batch || batch.kind !== 'links' || !batch.items.length || recovering() || recoveryLookup || serviceRoot(G.serviceURL) !== batchService) return;
+    const lookup = {id: batch.id, root: batchService, revision: ++recoveryStateRevision};
+    recoveryLookup = lookup; restoreRecoveryWanted = false;
+    try {
+      // This reads the existing native controller only. It must never consent,
+      // open a video, or resubmit a media file while restoring a page.
+      const value = await window.guanchao.request('native-transcript-recovery-state');
+      if (recoveryLookup !== lookup || recoveryStateRevision !== lookup.revision || !sameBatch(lookup.id, lookup.root) || serviceRoot(G.serviceURL) !== lookup.root) return;
+      if (value?.ok === false || value?.active !== true) return;
+      applyRecoveryProgress(value, true);
+    } catch { /* A missing optional state API cannot disable local transcription. */ }
+    finally { if (recoveryLookup === lookup) recoveryLookup = null; }
+  }
+  function settleMedia(value) {
+    for (const [index, attempt] of mediaSubmissions) {
+      if (attempt.id !== value.id || attempt.root !== batchService) continue;
+      const item = value.items.find(item => item.index === index), submission = item?.mediaSubmission;
+      if (!item) continue;
+      if (submission?.requestId === attempt.requestId && ['accepted', 'failed'].includes(submission.status)) {
+        mediaSubmissions.delete(index);
+        $('transcriptBatchSaveStatus').textContent = submission.status === 'accepted' ? number(index) + ' 补交已接收，沿用原编号和链接，正在排队识别。' : number(index) + ' 补交未完成：' + (text(submission.message) || '服务未能接收这个文件') + '。原编号、链接和失败任务已保留。';
+      } else if (attempt.uncertain && item.inputKind === 'upload' && !failedItem(item) && submission?.requestId !== attempt.requestId) {
+        // Older compatible services may omit the optional submission receipt.
+        mediaSubmissions.delete(index);
+      }
+    }
+    persistMedia();
+  }
+  async function supplementMedia(index, file) {
+    const original = batch?.items.find(item => item.index === index);
+    if (!file || batch?.kind !== 'links' || !original || !failedItem(original) || !linkItem(original) || currentMedia(index) || recovering() || !caps?.uploadAvailable) return;
+    const id = batch.id, root = batchService;
+    if (file.size > (caps.maxInputBytes || 209715200)) { $('transcriptBatchSaveStatus').textContent = number(index) + ' 补交未完成：单个文件不能超过 200 MB。原编号和任务已保留，请先裁剪或压缩。'; return; }
+    const requestId = typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : Array.from(crypto.getRandomValues(new Uint8Array(24)), value => value.toString(16).padStart(2, '0')).join('');
+    const attempt = {id, root, index, requestId, name: file.name, uncertain: false};
+    mediaSubmissions.set(index, attempt); persistMedia(); refreshControls();
+    $('transcriptBatchSaveStatus').textContent = '正在补交 ' + number(index) + ' · ' + file.name + '，原编号和链接不变。单文件最多 200 MB、20 分钟；本机服务会验证文件。';
+    try {
+      const form = new FormData(); form.append('file', file, file.name); form.append('requestId', requestId);
+      const value = await request(root, '/' + encodeURIComponent(id) + '/items/' + index + '/media', {method: 'POST', body: form}, '/api/transcript-batches');
+      if (!sameBatch(id, root) || mediaSubmissions.get(index) !== attempt) return;
+      if (value?.id !== id) throw Error('服务返回了其他批次，原批次已保留');
+      mediaSubmissions.delete(index); persistMedia();
+      applyBatch(value);
+      $('transcriptBatchSaveStatus').textContent = number(index) + ' 补交已接收，沿用原编号和链接，正在排队识别。';
+    } catch (error) {
+      if (!sameBatch(id, root) || mediaSubmissions.get(index) !== attempt) return;
+      if (error.status >= 400 && error.status < 500 && error.status !== 409) {
+        mediaSubmissions.delete(index); persistMedia();
+        $('transcriptBatchSaveStatus').textContent = number(index) + ' 补交未完成：' + error.message + '。原编号、链接和失败任务已保留。';
+      } else {
+        attempt.uncertain = true;
+        $('transcriptBatchSaveStatus').textContent = number(index) + ' 补交结果尚未确认：' + (error.name === 'AbortError' ? '上传连接超时' : error.message) + '。只查询原编号进度，不会重新上传；原链接和任务保留。';
+        applyBatch(batch); pollBatch();
+      }
+    } finally { if (sameBatch(id, root)) { refreshControls(); scheduleBatchPoll(); } }
+  }
   function selectedJob(item) {
     // Pending/invalid inputs may not have a worker job yet. Its ordinal is a
     // display-only id and is never passed to native-export without outputs.
@@ -354,7 +467,10 @@
       if (item.status === 'completed' && !text(item.text).trim()) return {...item, status: 'failed', message: '没有识别出语音原稿；标题和简介不会作为正文。'};
       return {...item};
     }).sort((a, b) => a.index - b.index);
+    const changedBatch = batch?.id !== value.id;
     batch = {...value, items};
+    if (changedBatch) { recovery = null; recoveryConsent = null; recoveryLookup = null; recoveryStateRevision++; $('transcriptRecoveryConsent').hidden = true; $('transcriptRecoveryStatus').textContent = ''; }
+    settleMedia(batch);
     persist();
     if (!items.some(item => item.index === selectedIndex)) selectedIndex = items.find(item => item.status === 'completed')?.index || items[0]?.index;
     const selected = items.find(item => item.index === selectedIndex);
@@ -369,7 +485,7 @@
     $('transcriptBatch').hidden = false;
     $('transcriptBatchCount').textContent = '完成 ' + completed + ' / ' + items.length + ' · 失败 ' + failed + (cancelled ? ' · 取消 ' + cancelled : '');
     $('transcriptTask').hidden = false;
-    $('transcriptStatus').textContent = batchTerminal.has(batch.status) ? '本批已结束：' + $('transcriptBatchCount').textContent + '。编号保持输入顺序，请及时保存全部 ZIP。' : text(batch.message) || '正在按输入顺序处理，单条失败会继续下一条。';
+    $('transcriptStatus').textContent = recovering() ? '本批正在按原编号恢复，播放会话进度见下方；已经得到的媒体会继续本机识别。' : mediaActive() ? '本批正在补交或确认文件接收结果，原编号和链接保留。' : batchTerminal.has(batch.status) ? '本批已结束：' + $('transcriptBatchCount').textContent + '。编号保持输入顺序，请及时保存全部 ZIP。' : text(batch.message) || '正在按输入顺序处理，单条失败会继续下一条。';
     panel.dataset.status = batch.status;
     const progress = $('transcriptProgress'); progress.hidden = batchTerminal.has(batch.status);
     if (Number.isFinite(batch.progress)) progress.value = Math.max(0, Math.min(1, batch.progress)); else progress.removeAttribute('value');
@@ -387,6 +503,26 @@
       state.className = 'transcript-item-state'; state.textContent = labels[item.status] || '处理中';
       copy.append(title, message); button.append(badge, copy, state); li.append(button);
       button.onclick = () => { selectedIndex = item.index; applyBatch(batch, true); };
+      if (linkItem(item)) {
+        const original = document.createElement('small'); original.className = 'transcript-item-original'; original.textContent = '原链接：' + item.shareText; original.title = item.shareText;
+        copy.append(original);
+      }
+      if (batch.kind === 'links' && failedItem(item) && linkItem(item)) {
+        const controls = document.createElement('div'), input = document.createElement('input'), upload = document.createElement('button');
+        controls.className = 'transcript-item-media';
+        input.type = 'file'; input.hidden = true; input.accept = 'audio/*,video/*,.mp4,.mov,.mkv,.webm,.m4a,.mp3,.wav,.flac,.ogg,.aac'; input.dataset.transcriptMedia = item.index; input.setAttribute('aria-label', '为第 ' + number(item.index) + ' 条补交本地视频');
+        upload.type = 'button'; upload.className = 'transcript-item-media-button'; upload.textContent = currentMedia(item.index) ? '补交结果待确认' : '补交本地视频'; upload.setAttribute('aria-label', '为第 ' + number(item.index) + ' 条补交本地视频');
+        upload.onclick = () => { if (!input.disabled) input.click(); };
+        input.onchange = () => supplementMedia(item.index, input.files?.[0]);
+        controls.append(input, upload);
+        const pending = currentMedia(item.index);
+        if (pending?.uncertain) {
+          const stop = document.createElement('button'); stop.type = 'button'; stop.className = 'transcript-item-stop-check'; stop.textContent = '停止查询'; stop.title = '只停止查询，不会取消本机上传或识别';
+          stop.onclick = () => { if (mediaSubmissions.get(item.index) !== pending || !sameBatch(pending.id, pending.root)) return; mediaSubmissions.delete(item.index); persistMedia(); applyBatch(batch); $('transcriptBatchSaveStatus').textContent = number(item.index) + ' 已停止查询，未取消本机上传或识别；再次补交前请先重新连接当前任务确认状态。'; };
+          controls.append(stop);
+        }
+        li.append(controls);
+      }
       if (['queued', 'running'].includes(item.status)) {
         const cancel = document.createElement('button'); cancel.type = 'button'; cancel.className = 'transcript-item-cancel'; cancel.textContent = '取消'; cancel.setAttribute('aria-label', '取消第 ' + number(item.index) + ' 条');
         cancel.onclick = async () => {
@@ -414,10 +550,11 @@
       Object.assign(nativeTask, {id: batch.id, title: '批量视频文案提取', status: batchTerminal.has(batch.status) ? (batch.status === 'partial' ? 'completed' : batch.status) : 'running', message: $('transcriptStatus').textContent, progress: batch.progress});
       Promise.resolve(G.updateTask(nativeTask)).catch(() => {});
     }
+    lookupRecoveryState();
   }
   function scheduleBatchPoll(delay = 1200) {
     clearTimeout(batchTimer);
-    if (batch && !batchTerminal.has(batch.status)) batchTimer = setTimeout(pollBatch, delay);
+    if (batch && (!batchTerminal.has(batch.status) || recovering() || mediaActive())) batchTimer = setTimeout(pollBatch, delay);
   }
   async function pollBatch() {
     if (!batch || batchPolling) return;
@@ -430,6 +567,8 @@
     } catch (error) {
       if (batch?.id === id && batchService === root) {
         if (error.status === 404 || error.status === 410) {
+          for (const [index, attempt] of mediaSubmissions) if (attempt.id === id && attempt.root === root) mediaSubmissions.delete(index);
+          persistMedia(); recovery = null;
           applyBatch({...batch, status: 'failed', items: batch.items.map(item => terminal.has(item.status) ? item : {...item, status: 'failed', message: '本机批次已过期或被清理，没有重新提交。'})});
           $('transcriptStatus').textContent = '本机服务已找不到这个批次，可能已清理。没有重新提交，请重新选择来源后开始。';
           try { localStorage.removeItem(BATCH_STORAGE); } catch { /* Storage unavailable. */ }
@@ -546,6 +685,57 @@
     catch (error) { $('transcriptBatchSaveStatus').textContent = '重试请求尚未确认：' + error.message + '。将查询当前批次，请勿反复点击。'; pollBatch(); }
     finally { retrying = false; refreshControls(); scheduleBatchPoll(); }
   };
+  $('transcriptBatchRecover').onclick = () => {
+    if (!nativeRecoveryAvailable() || !batch || !recoverableIndices().length || recovering() || mediaActive()) return;
+    recoveryConsent = {id: batch.id, root: batchService};
+    $('transcriptRecoveryConsent').hidden = false;
+    $('transcriptRecoveryConsent').scrollIntoView?.({block: 'nearest', behavior: 'auto'});
+    $('transcriptRecoveryConfirm').focus();
+  };
+  $('transcriptRecoveryDecline').onclick = () => { recoveryConsent = null; $('transcriptRecoveryConsent').hidden = true; };
+  $('transcriptRecoveryConfirm').onclick = async () => {
+    if (!nativeRecoveryAvailable() || !batch || recoveryConsent?.id !== batch.id || recoveryConsent.root !== batchService || recovering() || mediaActive()) return;
+    const indices = recoverableIndices();
+    if (!indices.length) return;
+    const id = batch.id, root = batchService, token = {id, root, active: true, status: 'starting', index: null};
+    recovery = token; recoveryConsent = null; $('transcriptRecoveryConsent').hidden = true;
+    $('transcriptRecoveryStatus').textContent = '正在打开本批视频，沿用原编号。登录与验证码请在观潮内由本人完成。';
+    refreshControls(); scheduleBatchPoll();
+    try {
+      const result = await window.guanchao.request('native-recover-transcript-batch', {batchId: id, consent: true, indices});
+      if (!sameBatch(id, root) || recovery !== token) return;
+      if (result?.ok === false) throw Error(result.error || '未能开始会话重试');
+    } catch (error) {
+      if (!sameBatch(id, root) || recovery !== token) return;
+      token.active = false;
+      $('transcriptRecoveryStatus').textContent = '会话重试未开始：' + error.message + '。原编号和失败原因保留，可补交本地视频。';
+    } finally { if (sameBatch(id, root) && recovery === token) { refreshControls(); scheduleBatchPoll(); } }
+  };
+  $('transcriptRecoveryContinue').onclick = async () => {
+    if (!nativeRecoveryAvailable() || !recovering() || recovery.status !== 'awaiting-user' || !Number.isInteger(recovery.index)) return;
+    const token = recovery, id = batch.id, root = batchService, index = recovery.index;
+    $('transcriptRecoveryContinue').disabled = true;
+    try {
+      const result = await window.guanchao.request('native-continue-transcript-recovery', {batchId: id, index});
+      if (!sameBatch(id, root) || recovery !== token) return;
+      if (result?.ok === false) throw Error(result.error || '当前视频仍未取得可播放媒体');
+    } catch (error) { if (sameBatch(id, root) && recovery === token) $('transcriptRecoveryStatus').textContent = number(index) + ' 继续检查未完成：' + error.message + '。可以继续在观潮中播放，或补交本地视频。'; }
+    finally { if (sameBatch(id, root) && recovery === token) { $('transcriptRecoveryContinue').disabled = false; refreshControls(); } }
+  };
+  $('transcriptRecoveryCancel').onclick = async () => {
+    if (!nativeRecoveryAvailable() || !recovering()) return;
+    const token = recovery, id = batch.id, root = batchService;
+    $('transcriptRecoveryCancel').disabled = true;
+    try {
+      const result = await window.guanchao.request('native-cancel-transcript-recovery', {batchId: id});
+      if (!sameBatch(id, root) || recovery !== token) return;
+      if (result?.ok === false) throw Error(result.error || '停止请求尚未确认');
+      token.active = false;
+      $('transcriptRecoveryStatus').textContent = '已停止会话重试，已得到的媒体会继续识别；原编号和已有文案保留。';
+      pollBatch();
+    } catch (error) { if (sameBatch(id, root) && recovery === token) $('transcriptRecoveryStatus').textContent = '停止请求尚未确认：' + error.message + '。已得到的文案保留。'; }
+    finally { if (sameBatch(id, root) && recovery === token) { $('transcriptRecoveryCancel').disabled = false; refreshControls(); scheduleBatchPoll(); } }
+  };
   $('transcriptBatchExport').onclick = async () => {
     if (!batch || !batchTerminal.has(batch.status) || $('transcriptBatchExport').disabled) return;
     const id = batch.id, name = '观潮视频文案-' + id + '.zip';
@@ -630,16 +820,27 @@
       button.classList.toggle('active', selected);
       button.setAttribute('aria-current', selected ? 'page' : 'false');
     });
+    if (batch && !recovering()) { restoreRecoveryWanted = true; lookupRecoveryState(); }
   }
   function openFromURL() { if (new URLSearchParams(location.search).get('tool') === 'transcript') openTranscript(); }
   addEventListener('guanchao:open-transcript', openTranscript);
   addEventListener('guanchao:service', () => {
     if (migrateNativeService()) poll();
+    if (batch && !recovering()) { restoreRecoveryWanted = true; lookupRecoveryState(); }
     checkCapabilities();
   });
   addEventListener('online', () => { if (active()) poll(); });
   addEventListener('popstate', openFromURL);
+  if (nativeRecoveryAvailable()) window.guanchao.listen(data => {
+    applyRecoveryProgress(data?.transcriptRecovery);
+  });
   let restored, restoredBatch, restoredPending;
+  try {
+    const restoredMedia = JSON.parse(localStorage.getItem(MEDIA_STORAGE) || '[]');
+    if (Array.isArray(restoredMedia)) for (const item of restoredMedia.slice(0, 20)) {
+      if (item && typeof item.id === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(item.id) && serviceRoot(item.root) && Number.isInteger(item.index) && item.index >= 1 && item.index <= 20 && typeof item.requestId === 'string' && /^[a-zA-Z0-9_-]{16,64}$/.test(item.requestId)) mediaSubmissions.set(item.index, {id: item.id, root: serviceRoot(item.root), index: item.index, requestId: item.requestId, name: text(item.name).slice(0, 255), uncertain: true});
+    }
+  } catch { /* Invalid saved uploads must never be reposted. */ }
   try { restoredPending = JSON.parse(localStorage.getItem(PENDING_STORAGE) || 'null'); } catch { /* Ignore invalid local state. */ }
   try { restoredBatch = JSON.parse(localStorage.getItem(BATCH_STORAGE) || 'null'); } catch { /* Ignore invalid local state. */ }
   try { restored = JSON.parse(localStorage.getItem(STORAGE) || 'null'); } catch { /* Ignore invalid local state. */ }
@@ -647,6 +848,7 @@
     pendingSubmission = {requestId: restoredPending.requestId, serviceURL: serviceRoot(restoredPending.serviceURL)};
     migrateNativeService(); findPendingBatch();
   } else if (restoredBatch && typeof restoredBatch.id === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(restoredBatch.id) && serviceRoot(restoredBatch.serviceURL)) {
+    restoreRecoveryWanted = true;
     batch = {id: restoredBatch.id, status: 'queued', items: [], message: '正在恢复上次批次，只查询进度，不会重新提交。'};
     batchService = serviceRoot(restoredBatch.serviceURL); jobService = batchService;
     migrateNativeService(); applyBatch(batch); pollBatch();
