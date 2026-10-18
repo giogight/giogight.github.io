@@ -30,9 +30,9 @@
         <div id="transcriptTask" class="transcript-task" hidden><p id="transcriptStatus" role="status" aria-live="polite"></p><progress id="transcriptProgress" max="1" aria-label="文案提取进度"></progress></div>
         <section id="transcriptBatch" class="transcript-batch" hidden aria-label="按输入顺序排列的提取任务">
           <div class="transcript-batch-heading"><h3>本批任务</h3><span id="transcriptBatchCount" role="status"></span></div>
-          <div class="transcript-actions transcript-recovery-toolbar"><button type="button" id="transcriptBatchRecover" hidden>使用观潮内播放会话重试</button></div>
-          <section id="transcriptRecoveryConsent" class="transcript-recovery-consent" hidden aria-label="确认使用观潮内播放会话"><strong>按原编号继续提取</strong><p>会在观潮内打开本批对应的抖音视频，使用观潮内播放会话取得你能正常播放的媒体，再交给本机识别。不读取外部浏览器资料，不导出 Cookie。若需要登录或验证码，由你本人在观潮窗口完成；不能播放的视频仍保留失败原因。</p><div class="transcript-actions"><button type="button" id="transcriptRecoveryConfirm">确认并打开视频</button><button type="button" id="transcriptRecoveryDecline">暂不使用</button></div></section>
-          <div class="transcript-recovery-progress"><p id="transcriptRecoveryStatus" role="status" aria-live="polite"></p><div class="transcript-actions"><button type="button" id="transcriptRecoveryContinue" hidden>已能播放，继续检查</button><button type="button" id="transcriptRecoveryCancel" hidden>停止会话重试</button></div></div>
+          <div class="transcript-actions transcript-recovery-toolbar"><button type="button" id="transcriptBatchRecover" hidden>后台重试抖音链接</button></div>
+          <section id="transcriptRecoveryConsent" class="transcript-recovery-consent" hidden aria-label="确认后台重试抖音链接"><strong>按原编号后台重试</strong><p>允许观潮后台读取本批公开链接并在本机识别。不会弹登录窗口；受限时暂停，原编号和已有结果保留。不读取外部浏览器资料，不导出 Cookie。没有取得视频时，仍可补交本地音视频。</p><div class="transcript-actions"><button type="button" id="transcriptRecoveryConfirm">确认并后台重试</button><button type="button" id="transcriptRecoveryDecline">暂不使用</button></div></section>
+          <div class="transcript-recovery-progress"><p id="transcriptRecoveryStatus" role="status" aria-live="polite"></p><div class="transcript-actions"><button type="button" id="transcriptRecoveryContinue" hidden>继续检查</button><button type="button" id="transcriptRecoveryCancel" hidden>停止后台重试</button></div></div>
           <p id="transcriptRecoveryHelp" class="transcript-batch-note" hidden></p>
           <ol id="transcriptBatchItems" class="transcript-batch-items"></ol>
           <div class="transcript-actions"><button type="button" id="transcriptBatchExport" disabled>保存全部 ZIP</button><button type="button" id="transcriptBatchRetry" hidden>重试失败项</button></div>
@@ -373,7 +373,7 @@
     $('transcriptRecoveryContinue').hidden = !running || recovery.status !== 'awaiting-user' || !Number.isInteger(recovery.index);
     const legacyUpload = batch && !['links', 'uploads'].includes(batch.kind) && batch.items?.some(item => failedItem(item) && linkItem(item));
     $('transcriptRecoveryHelp').hidden = !eligible.length && !legacyUpload;
-    $('transcriptRecoveryHelp').textContent = legacyUpload ? '此服务未支持按编号补交，可改用“本地音视频”新建批次；原任务和编号保留。' : native ? '研究入口：播放会话尚未证明能稳定取得抖音媒体。可确认后尝试；没有取得视频时，请保存本地视频并补交。登录和验证码需要本人操作。' : '抖音匿名访问经常受限。请先保存或取得本地视频，再在原编号下补交；已连接的本地文件识别仍可用。';
+    $('transcriptRecoveryHelp').textContent = legacyUpload ? '此服务未支持按编号补交，可改用“本地音视频”新建批次；原任务和编号保留。' : native ? '可确认后在后台重试本批公开抖音链接，不弹登录窗口。受限时暂停，原编号与已有结果保留；也可补交本地音视频。' : '抖音匿名访问经常受限。请先保存或取得本地视频，再在原编号下补交；已连接的本地文件识别仍可用。';
     if (!batch || recoveryConsent?.id !== batch.id || recoveryConsent.root !== batchService) $('transcriptRecoveryConsent').hidden = true;
     for (const input of $('transcriptBatchItems').querySelectorAll('[data-transcript-media]')) {
       const pending = currentMedia(Number(input.dataset.transcriptMedia));
@@ -485,7 +485,7 @@
     $('transcriptBatch').hidden = false;
     $('transcriptBatchCount').textContent = '完成 ' + completed + ' / ' + items.length + ' · 失败 ' + failed + (cancelled ? ' · 取消 ' + cancelled : '');
     $('transcriptTask').hidden = false;
-    $('transcriptStatus').textContent = recovering() ? '本批正在按原编号恢复，播放会话进度见下方；已经得到的媒体会继续本机识别。' : mediaActive() ? '本批正在补交或确认文件接收结果，原编号和链接保留。' : batchTerminal.has(batch.status) ? '本批已结束：' + $('transcriptBatchCount').textContent + '。编号保持输入顺序，请及时保存全部 ZIP。' : text(batch.message) || '正在按输入顺序处理，单条失败会继续下一条。';
+    $('transcriptStatus').textContent = recovering() ? '本批正在后台按原编号重试公开链接，不弹登录窗口；已经得到的媒体会继续本机识别。' : mediaActive() ? '本批正在补交或确认文件接收结果，原编号和链接保留。' : batchTerminal.has(batch.status) ? '本批已结束：' + $('transcriptBatchCount').textContent + '。编号保持输入顺序，请及时保存全部 ZIP。' : text(batch.message) || '正在按输入顺序处理，单条失败会继续下一条。';
     panel.dataset.status = batch.status;
     const progress = $('transcriptProgress'); progress.hidden = batchTerminal.has(batch.status);
     if (Number.isFinite(batch.progress)) progress.value = Math.max(0, Math.min(1, batch.progress)); else progress.removeAttribute('value');
@@ -699,16 +699,16 @@
     if (!indices.length) return;
     const id = batch.id, root = batchService, token = {id, root, active: true, status: 'starting', index: null};
     recovery = token; recoveryConsent = null; $('transcriptRecoveryConsent').hidden = true;
-    $('transcriptRecoveryStatus').textContent = '正在打开本批视频，沿用原编号。登录与验证码请在观潮内由本人完成。';
+    $('transcriptRecoveryStatus').textContent = '正在后台读取本批公开链接，沿用原编号。不会弹登录窗口；受限时暂停，已有结果保留。';
     refreshControls(); scheduleBatchPoll();
     try {
       const result = await window.guanchao.request('native-recover-transcript-batch', {batchId: id, consent: true, indices});
       if (!sameBatch(id, root) || recovery !== token) return;
-      if (result?.ok === false) throw Error(result.error || '未能开始会话重试');
+      if (result?.ok === false) throw Error(result.error || '未能开始后台重试');
     } catch (error) {
       if (!sameBatch(id, root) || recovery !== token) return;
       token.active = false;
-      $('transcriptRecoveryStatus').textContent = '会话重试未开始：' + error.message + '。原编号和失败原因保留，可补交本地视频。';
+      $('transcriptRecoveryStatus').textContent = '后台重试未开始：' + error.message + '。原编号和失败原因保留，可补交本地视频。';
     } finally { if (sameBatch(id, root) && recovery === token) { refreshControls(); scheduleBatchPoll(); } }
   };
   $('transcriptRecoveryContinue').onclick = async () => {
@@ -718,8 +718,8 @@
     try {
       const result = await window.guanchao.request('native-continue-transcript-recovery', {batchId: id, index});
       if (!sameBatch(id, root) || recovery !== token) return;
-      if (result?.ok === false) throw Error(result.error || '当前视频仍未取得可播放媒体');
-    } catch (error) { if (sameBatch(id, root) && recovery === token) $('transcriptRecoveryStatus').textContent = number(index) + ' 继续检查未完成：' + error.message + '。可以继续在观潮中播放，或补交本地视频。'; }
+      if (result?.ok === false) throw Error(result.error || '当前链接仍未取得可识别媒体');
+    } catch (error) { if (sameBatch(id, root) && recovery === token) $('transcriptRecoveryStatus').textContent = number(index) + ' 继续检查未完成：' + error.message + '。原编号和已有结果保留，可补交本地视频。'; }
     finally { if (sameBatch(id, root) && recovery === token) { $('transcriptRecoveryContinue').disabled = false; refreshControls(); } }
   };
   $('transcriptRecoveryCancel').onclick = async () => {
@@ -731,7 +731,7 @@
       if (!sameBatch(id, root) || recovery !== token) return;
       if (result?.ok === false) throw Error(result.error || '停止请求尚未确认');
       token.active = false;
-      $('transcriptRecoveryStatus').textContent = '已停止会话重试，已得到的媒体会继续识别；原编号和已有文案保留。';
+      $('transcriptRecoveryStatus').textContent = '已停止后台重试，已得到的媒体会继续识别；原编号和已有文案保留。';
       pollBatch();
     } catch (error) { if (sameBatch(id, root) && recovery === token) $('transcriptRecoveryStatus').textContent = '停止请求尚未确认：' + error.message + '。已得到的文案保留。'; }
     finally { if (sameBatch(id, root) && recovery === token) { $('transcriptRecoveryCancel').disabled = false; refreshControls(); scheduleBatchPoll(); } }
